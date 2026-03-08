@@ -1,0 +1,130 @@
+@use '../../styles/variables' as *;
+
+.home-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.hero-section {
+    min-height: 40vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, $accent-color 0%, $bg-light 100%);
+    text-align: center;
+    padding: $spacing-md;
+
+    .hero-content {
+        max-width: 800px;
+        animation: fadeIn 1s ease-in-out;
+
+        h1 {
+            font-size: 3.5rem;
+            color: $primary-color;
+            margin-bottom: $spacing-md;
+            font-weight: 700;
+        }
+
+        p {
+            font-size: 1.25rem;
+            color: #555;
+            margin-bottom: $spacing-lg;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: $spacing-md;
+            justify-content: center;
+
+            // Make btn-primary explicitly available here or use from index.scss
+            .btn-primary {
+                display: inline-block;
+            }
+
+            .btn-secondary {
+                display: inline-block;
+                background-color: transparent;
+                color: $primary-color;
+                border: 2px solid $primary-color;
+                font-weight: 500;
+                padding: 0.75rem 1.5rem;
+                border-radius: $border-radius;
+                transition: all $transition-fast;
+
+                &:hover {
+                    background-color: rgba($primary-color, 0.1);
+                    transform: translateY(-2px);
+                }
+            }
+        }
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.listings-section {
+    padding: $spacing-xl 0;
+
+    h2 {
+        font-size: 2rem;
+        color: $text-dark;
+        margin-bottom: $spacing-lg;
+        text-align: center;
+    }
+
+    .loader {
+        text-align: center;
+        font-size: 1.2rem;
+        color: $primary-color;
+        padding: $spacing-xl;
+    }
+
+    .listings-grid {
+        display: grid;
+        grid-template-columns: repeat(1, 280px);
+        justify-content: center;
+        gap: $spacing-lg;
+        width: 100%;
+
+        &>* {
+            min-width: 0;
+            max-width: 280px;
+        }
+
+        @media (min-width: 650px) {
+            grid-template-columns: repeat(2, 280px);
+        }
+
+        @media (min-width: 950px) {
+            grid-template-columns: repeat(3, 280px);
+        }
+
+        @media (min-width: 1250px) {
+            grid-template-columns: repeat(4, 280px);
+        }
+    }
+}
+
+@media (max-width: 768px) {
+    .hero-section {
+        .hero-content {
+            h1 {
+                font-size: 2.5rem;
+            }
+        }
+
+        .hero-buttons {
+            flex-direction: column;
+        }
+    }
+}

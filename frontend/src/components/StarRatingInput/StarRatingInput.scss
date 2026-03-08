@@ -1,0 +1,29 @@
+@use '../../styles/variables' as *;
+
+.star-rating-input {
+    display: flex;
+    gap: 4px;
+
+    button {
+        background-color: transparent;
+        border: none;
+        outline: none;
+        cursor: pointer;
+        font-size: 2rem;
+        padding: 0;
+        line-height: 1;
+
+        .star-char {
+            color: #ccc;
+            transition: color $transition-fast;
+        }
+
+        &.on .star-char {
+            color: #f1c40f;
+        }
+
+        &:hover .star-char {
+            transform: scale(1.1);
+        }
+    }
+}

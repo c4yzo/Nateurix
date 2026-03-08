@@ -1,0 +1,109 @@
+@use '../../styles/variables' as *;
+
+.navbar-header {
+    background-color: #ffffff;
+    box-shadow: $box-shadow;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.navbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 80px;
+
+    .navbar-brand {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: $text-dark;
+
+        a {
+            transition: opacity $transition-fast;
+
+            &:hover {
+                color: $text-dark;
+                opacity: 0.8;
+            }
+        }
+
+        .brand-highlight {
+            color: $primary-color;
+        }
+    }
+
+    .navbar-nav {
+        display: flex;
+        align-items: center;
+        gap: $spacing-md;
+
+        .nav-item {
+            font-weight: 500;
+        }
+
+        .nav-link {
+            color: #555;
+            padding: 0.5rem 0;
+            position: relative;
+
+            &::after {
+                content: '';
+                position: absolute;
+                width: 0;
+                height: 2px;
+                bottom: 0px;
+                left: 0;
+                background-color: $primary-color;
+                transition: width $transition-fast;
+            }
+
+            &:hover {
+                color: $primary-color;
+
+                &::after {
+                    width: 100%;
+                }
+            }
+        }
+
+        .user-greeting {
+            color: $primary-color;
+            font-weight: 600;
+        }
+
+        .btn-register,
+        .btn-logout {
+            background-color: $primary-color;
+            color: $text-light;
+            padding: 0.6rem 1.2rem;
+            border-radius: $border-radius;
+            font-weight: 600;
+            transition: all $transition-fast;
+
+            &:hover {
+                background-color: darken($primary-color, 10%);
+                transform: translateY(-2px);
+                box-shadow: $box-shadow;
+                color: $text-light;
+            }
+        }
+
+        .btn-logout {
+            background-color: #e74c3c;
+
+            &:hover {
+                background-color: darken(#e74c3c, 10%);
+            }
+        }
+    }
+}
+
+// Responsive
+@media (max-width: 768px) {
+    .navbar {
+        .navbar-nav {
+            gap: $spacing-sm;
+        }
+    }
+}

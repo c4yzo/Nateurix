@@ -1,0 +1,81 @@
+@use '../../styles/variables' as *;
+
+.review-card {
+    padding: $spacing-md $spacing-lg;
+    margin-bottom: $spacing-md;
+    border-radius: $border-radius;
+    transition: transform $transition-fast;
+
+    &:hover {
+        transform: translateY(-2px);
+    }
+
+    .review-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: $spacing-sm;
+
+        .reviewer-info {
+            display: flex;
+            align-items: center;
+            gap: $spacing-sm;
+
+            .reviewer-avatar {
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                background-color: $primary-color;
+                color: white;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 1.2rem;
+                font-weight: 600;
+            }
+
+            .reviewer-details {
+                display: flex;
+                flex-direction: column;
+
+                .reviewer-name {
+                    font-weight: 600;
+                    color: $text-dark;
+                    font-size: 1rem;
+                }
+
+                .review-date {
+                    font-size: 0.8rem;
+                    color: #7f8c8d;
+                }
+            }
+        }
+
+        .review-rating {
+            display: flex;
+            gap: 2px;
+
+            .star {
+                font-size: 1.2rem;
+                line-height: 1;
+
+                &.filled {
+                    color: #f1c40f;
+                }
+
+                &.empty {
+                    color: #e0e0e0;
+                }
+            }
+        }
+    }
+
+    .review-body {
+        p {
+            margin: 0;
+            color: #444;
+            line-height: 1.5;
+            font-size: 0.95rem;
+        }
+    }
+}

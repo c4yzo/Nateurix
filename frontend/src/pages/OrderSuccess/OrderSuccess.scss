@@ -1,0 +1,97 @@
+@use '../../styles/variables' as *;
+
+.order-success-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 60vh;
+    padding: $spacing-xl 0;
+
+    .success-card {
+        background: white;
+        padding: $spacing-xl;
+        border-radius: $border-radius;
+        box-shadow: $box-shadow;
+        text-align: center;
+        max-width: 500px;
+        width: 100%;
+        border-top: 5px solid $primary-color;
+
+        .icon-wrapper {
+            width: 80px;
+            height: 80px;
+            background-color: rgba($primary-color, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto $spacing-lg;
+
+            .success-icon {
+                font-size: 3rem;
+                color: $primary-color;
+                line-height: 1;
+            }
+        }
+
+        h2 {
+            color: $text-dark;
+            margin-bottom: $spacing-sm;
+            font-size: 2rem;
+        }
+
+        p {
+            color: #666;
+            margin-bottom: $spacing-lg;
+            font-size: 1.1rem;
+        }
+
+        .order-details {
+            background-color: #f9f9f9;
+            padding: $spacing-md;
+            border-radius: 8px;
+            margin-bottom: $spacing-lg;
+            border: 1px dashed #ccc;
+
+            p {
+                margin-bottom: $spacing-xs;
+                font-size: 1rem;
+                color: $text-dark;
+
+                &.note {
+                    font-size: 0.85rem;
+                    color: #777;
+                    margin-top: $spacing-sm;
+                    font-style: italic;
+                }
+            }
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: $spacing-md;
+            justify-content: center;
+
+            a {
+                flex: 1;
+                text-decoration: none;
+                text-align: center;
+            }
+
+            .btn-secondary {
+                background-color: transparent;
+                border: 2px solid $primary-color;
+                color: $primary-color;
+                padding: 10px 20px;
+                border-radius: 4px;
+                font-weight: 600;
+                transition: all $transition-fast;
+
+                &:hover {
+                    background-color: $primary-color;
+                    color: white;
+                }
+            }
+        }
+    }
+}

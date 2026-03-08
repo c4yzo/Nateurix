@@ -1,0 +1,105 @@
+@use '../../styles/variables' as *;
+
+.create-listing-container {
+    padding: $spacing-xl 0;
+    display: flex;
+    justify-content: center;
+}
+
+.create-listing-card {
+    background: white;
+    border-radius: $border-radius;
+    box-shadow: $box-shadow;
+    padding: $spacing-xl;
+    width: 100%;
+    max-width: 700px;
+    animation: fadeIn 0.4s ease;
+
+    h2 {
+        color: $primary-color;
+        margin-bottom: $spacing-xs;
+        font-size: 2rem;
+    }
+
+    .subtitle {
+        color: #666;
+        margin-bottom: $spacing-lg;
+        padding-bottom: $spacing-md;
+        border-bottom: 1px solid #eee;
+    }
+
+    .error-message {
+        background-color: #fce4e4;
+        color: #e74c3c;
+        padding: $spacing-sm;
+        border-radius: $border-radius;
+        margin-bottom: $spacing-md;
+    }
+}
+
+.listing-form {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-md;
+
+    .form-row {
+        display: flex;
+        gap: $spacing-md;
+
+        .half {
+            flex: 1;
+        }
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+
+        label {
+            font-weight: 500;
+            color: $text-dark;
+        }
+
+        input,
+        select,
+        textarea {
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: $border-radius;
+            font-family: inherit;
+            font-size: 1rem;
+            transition: border-color $transition-fast;
+            background-color: #fafafa;
+
+            &:focus {
+                outline: none;
+                border-color: $primary-color;
+                background-color: white;
+                box-shadow: 0 0 0 2px rgba($primary-color, 0.1);
+            }
+        }
+
+        textarea {
+            resize: vertical;
+        }
+
+        small {
+            color: #888;
+            font-size: 0.85rem;
+        }
+    }
+
+    .submit-btn {
+        margin-top: $spacing-md;
+        font-size: 1.1rem;
+        padding: 1rem;
+        font-weight: 600;
+    }
+}
+
+@media (max-width: 600px) {
+    .listing-form .form-row {
+        flex-direction: column;
+    }
+}

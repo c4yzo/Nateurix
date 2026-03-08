@@ -1,0 +1,48 @@
+@use '../../styles/variables' as *;
+
+.search-bar-container {
+    display: flex;
+    max-width: 600px;
+    margin: 0 auto $spacing-lg auto;
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+    border-radius: 50px;
+    padding: 8px 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+
+    .search-input {
+        flex: 1;
+        border: none;
+        background: transparent;
+        padding: 10px 15px;
+        font-size: 1rem;
+        color: $text-dark;
+        outline: none;
+
+        &::placeholder {
+            color: #aaa;
+        }
+    }
+
+    .search-button {
+        background-color: $primary-color;
+        color: white;
+        border: none;
+        padding: 10px 24px;
+        border-radius: 50px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color $transition-fast;
+
+        &:hover {
+            background-color: color-mix(in srgb, $primary-color 80%, black);
+        }
+    }
+}
+
+@media (max-width: 768px) {
+    .search-bar-container {
+        margin: 0 $spacing-md $spacing-lg $spacing-md;
+    }
+}

@@ -1,0 +1,99 @@
+@use './styles/variables' as *;
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: $font-family-base;
+    background-color: $bg-light;
+    color: $text-dark;
+    line-height: 1.6;
+}
+
+*.alert {
+    padding: $spacing-sm $spacing-md;
+    border-radius: $border-radius;
+    margin-bottom: $spacing-md;
+    font-weight: 500;
+
+    &.alert-danger {
+        background-color: #fce4e4;
+        color: #cc0033;
+        border: 1px solid #fcc2c3;
+    }
+}
+
+// Global Loader/Spinner
+.loader {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 200px;
+    font-size: 1.2rem;
+    color: $primary-color;
+    font-weight: 600;
+
+    &::after {
+        content: "";
+        width: 40px;
+        height: 40px;
+        margin-left: 15px;
+        border: 4px solid rgba($primary-color, 0.2);
+        border-top-color: $primary-color;
+        border-radius: 50%;
+        animation: spinner 1s linear infinite;
+    }
+}
+
+@keyframes spinner {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+    transition: color $transition-fast;
+
+    &:hover {
+        color: $primary-color;
+    }
+}
+
+ul {
+    list-style: none;
+}
+
+button {
+    cursor: pointer;
+    font-family: inherit;
+    border: none;
+    border-radius: $border-radius;
+    padding: $spacing-xs $spacing-sm;
+    transition: all $transition-fast;
+}
+
+// Global utility classes
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 $spacing-md;
+}
+
+.btn-primary {
+    background-color: $primary-color;
+    color: $text-light;
+    font-weight: 500;
+    padding: 0.75rem 1.5rem;
+
+    &:hover {
+        background-color: darken($primary-color, 10%);
+        transform: translateY(-2px);
+        box-shadow: $box-shadow;
+    }
+}

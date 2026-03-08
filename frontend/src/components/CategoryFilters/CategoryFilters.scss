@@ -1,0 +1,56 @@
+@use '../../styles/variables' as *;
+
+.category-filters-container {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: $spacing-md;
+    margin-bottom: $spacing-xl;
+
+    .category-pill {
+        background-color: #fff;
+        color: $text-dark;
+        border: 1px solid #ddd;
+        padding: 8px 20px;
+        border-radius: 50px;
+        font-size: 0.95rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all $transition-fast;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.02);
+
+        &:hover {
+            border-color: $secondary-color;
+            background-color: rgba($secondary-color, 0.05);
+        }
+
+        &.active {
+            background-color: $secondary-color;
+            color: $text-dark;
+            border-color: $secondary-color;
+            box-shadow: 0 4px 10px rgba($secondary-color, 0.3);
+            font-weight: 600;
+        }
+    }
+}
+
+@media (max-width: 768px) {
+    .category-filters-container {
+        justify-content: flex-start;
+        padding: 0 $spacing-md;
+        overflow-x: auto;
+        flex-wrap: nowrap;
+        padding-bottom: $spacing-sm;
+        /* for scrollbar */
+
+        /* Hide scrollbar for a cleaner look but keep functionality */
+        &::-webkit-scrollbar {
+            height: 4px;
+        }
+
+        &::-webkit-scrollbar-thumb {
+            background: #ddd;
+            border-radius: 4px;
+        }
+    }
+}

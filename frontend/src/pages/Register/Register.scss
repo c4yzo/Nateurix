@@ -1,0 +1,110 @@
+@use '../../styles/variables' as *;
+
+.auth-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: calc(100vh - 80px);
+    padding: $spacing-xl $spacing-md;
+}
+
+.auth-card {
+    background-color: #fff;
+    border-radius: $border-radius;
+    box-shadow: $box-shadow-hover;
+    padding: $spacing-xl;
+    width: 100%;
+    max-width: 500px;
+    animation: slideUp 0.5s ease;
+
+    h2 {
+        color: $primary-color;
+        margin-bottom: $spacing-xs;
+        text-align: center;
+        font-weight: 600;
+    }
+
+    .auth-subtitle {
+        text-align: center;
+        color: #666;
+        margin-bottom: $spacing-lg;
+    }
+
+    .error-message {
+        background-color: #fce4e4;
+        color: #e74c3c;
+        padding: $spacing-sm;
+        border-radius: $border-radius;
+        margin-bottom: $spacing-md;
+        text-align: center;
+        border: 1px solid #fcc2c2;
+    }
+}
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-md;
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: $spacing-xs;
+
+        label {
+            font-weight: 500;
+            color: $text-dark;
+            font-size: 0.9rem;
+        }
+
+        input {
+            padding: 0.75rem $spacing-sm;
+            border: 1px solid #ddd;
+            border-radius: $border-radius;
+            font-family: inherit;
+            font-size: 1rem;
+            transition: border-color $transition-fast;
+
+            &:focus {
+                outline: none;
+                border-color: $primary-color;
+                box-shadow: 0 0 0 2px rgba($primary-color, 0.2);
+            }
+        }
+    }
+
+    .auth-submit {
+        margin-top: $spacing-sm;
+        width: 100%;
+        font-size: 1.1rem;
+        padding: 0.85rem;
+    }
+}
+
+.auth-redirect {
+    margin-top: $spacing-lg;
+    text-align: center;
+    font-size: 0.95rem;
+    color: #666;
+
+    a {
+        color: $primary-color;
+        font-weight: 600;
+
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

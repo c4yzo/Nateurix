@@ -1,0 +1,46 @@
+@use '../../styles/variables' as *;
+
+.not-found-container {
+    min-height: 60vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: $spacing-xl 20px;
+
+    .not-found-content {
+        max-width: 600px;
+        background: white;
+        padding: 40px;
+        border-radius: $border-radius;
+        box-shadow: $box-shadow;
+
+        .error-code {
+            font-size: 6rem;
+            font-weight: 800;
+            color: color-mix(in srgb, $primary-color 30%, transparent);
+            line-height: 1;
+            margin-bottom: $spacing-sm;
+        }
+
+        h1 {
+            color: $text-dark;
+            font-size: 2rem;
+            margin-bottom: $spacing-md;
+        }
+
+        p {
+            color: #666;
+            margin-bottom: $spacing-lg;
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+
+        .btn-primary {
+            display: inline-block;
+            padding: 12px 30px;
+            font-size: 1.1rem;
+            border-radius: 50px;
+        }
+    }
+}
