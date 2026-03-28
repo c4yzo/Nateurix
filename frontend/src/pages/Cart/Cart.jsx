@@ -113,7 +113,7 @@ const Cart = () => {
                                         </Link>
                                         <p className="item-category">{item.listing.category}</p>
                                         <div className="item-price">
-                                            ${item.listing.price.toFixed(2)}
+                                            ₹{item.listing.price.toFixed(2)}
                                             {((item.listing.transactionType || 'Sale').toLowerCase() === 'rent' || item.listing.category === 'Tool') && ' / day'}
                                         </div>
                                     </div>

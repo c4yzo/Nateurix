@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './SearchBar.scss';
 
 const SearchBar = ({ searchKeyword, setSearchKeyword, onSearch }) => {
+    const [isFocused, setIsFocused] = useState(false);
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -9,17 +10,29 @@ const SearchBar = ({ searchKeyword, setSearchKeyword, onSearch }) => {
     };
 
     return (
-        <form className="search-bar-container" onSubmit={handleSubmit}>
+        <form
+            className={`search-bar-container ${isFocused ? 'focused' : ''}`}
+            onSubmit={handleSubmit}
+        >
+            <div className="search-icon">🔍</div>
             <input
                 type="text"
                 className="search-input"
-                placeholder="Search for plants, seeds, tools..."
+                placeholder="Search for rare plants, seeds, tools..."
                 value={searchKeyword}
                 onChange={(e) => setSearchKeyword(e.target.value)}
+                onFocus={() => setIsFocused(true)}
+                onBlur={() => setIsFocused(false)}
             />
-            <button type="submit" className="search-button">
-                Search
-            </button>
+            {searchKeyword && (
+                <button
+                    type="submit"
+                    className="search-button-inline"
+                    aria-label="Submit Search"
+                >
+                    →
+                </button>
+            )}
         </form>
     );
 };

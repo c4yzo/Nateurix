@@ -20,6 +20,16 @@ import NotFound from './pages/NotFound/NotFound';
 import AgriBotWidget from './components/AgriBotWidget/AgriBotWidget';
 import './App.scss';
 
+import { useEffect } from 'react';
+
+const PageWrapper = ({ title, children }) => {
+  useEffect(() => {
+    document.title = `${title} | Nateurix`;
+  }, [title]);
+
+  return children;
+};
+
 function App() {
   return (
     <Router>
@@ -28,22 +38,22 @@ function App() {
         <AgriBotWidget />
         <main className="main-content">
           <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/create-listing" element={<CreateListing />} />
-            <Route path="/listing/:id" element={<ListingDetail />} />
-            <Route path="/my-ads" element={<MyAds />} />
-            <Route path="/edit-listing/:id" element={<EditListing />} />
-            <Route path="/cart" element={<Cart />} />
-            <Route path="/checkout" element={<Checkout />} />
-            <Route path="/identify" element={<PlantIdentifier />} />
-            <Route path="/purchases" element={<PurchaseHistory />} />
-            <Route path="/order-success/:id" element={<OrderSuccess />} />
-            <Route path="/order-failed" element={<OrderFailed />} />
-            <Route path="/admin/login" element={<AdminLogin />} />
-            <Route path="/admin/dashboard" element={<AdminDashboard />} />
-            <Route path="*" element={<NotFound />} />
+            <Route path="/" element={<PageWrapper title="Home"><Home /></PageWrapper>} />
+            <Route path="/login" element={<PageWrapper title="Login"><Login /></PageWrapper>} />
+            <Route path="/register" element={<PageWrapper title="Register"><Register /></PageWrapper>} />
+            <Route path="/create-listing" element={<PageWrapper title="Sell an Item"><CreateListing /></PageWrapper>} />
+            <Route path="/listing/:id" element={<PageWrapper title="Listing Details"><ListingDetail /></PageWrapper>} />
+            <Route path="/my-ads" element={<PageWrapper title="My Shop"><MyAds /></PageWrapper>} />
+            <Route path="/edit-listing/:id" element={<PageWrapper title="Edit Listing"><EditListing /></PageWrapper>} />
+            <Route path="/cart" element={<PageWrapper title="Cart"><Cart /></PageWrapper>} />
+            <Route path="/checkout" element={<PageWrapper title="Checkout"><Checkout /></PageWrapper>} />
+            <Route path="/identify" element={<PageWrapper title="AI Identifier"><PlantIdentifier /></PageWrapper>} />
+            <Route path="/purchases" element={<PageWrapper title="Purchase History"><PurchaseHistory /></PageWrapper>} />
+            <Route path="/order-success/:id" element={<PageWrapper title="Payment Success"><OrderSuccess /></PageWrapper>} />
+            <Route path="/order-failed" element={<PageWrapper title="Payment Failed"><OrderFailed /></PageWrapper>} />
+            <Route path="/admin/login" element={<PageWrapper title="Admin Login"><AdminLogin /></PageWrapper>} />
+            <Route path="/admin/dashboard" element={<PageWrapper title="Admin Dashboard"><AdminDashboard /></PageWrapper>} />
+            <Route path="*" element={<PageWrapper title="404 Not Found"><NotFound /></PageWrapper>} />
           </Routes>
         </main>
       </div>

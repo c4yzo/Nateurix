@@ -123,7 +123,7 @@ const ListingDetail = () => {
                     </div>
 
                     <h2 className="price">
-                        ${listing.price?.toFixed(2)}
+                        ₹{listing.price?.toFixed(2)}
                         {(listing.transactionType === 'Rent' || listing.category === 'Tool') && <span style={{ fontSize: '1.2rem', color: '#666', fontWeight: 'normal' }}> / day</span>}
                     </h2>
 
@@ -147,21 +147,6 @@ const ListingDetail = () => {
                                 Delete
                             </button>
                         </div>
-                    ) : revealContact ? (
-                        <div className="contact-info-card" style={{ marginTop: '20px', padding: '15px', backgroundColor: '#f9f9f9', borderRadius: '8px', borderLeft: '4px solid #94C973' }}>
-                            <h4 style={{ marginBottom: '10px', color: '#2F5233' }}>Contact Information</h4>
-                            {listing.seller?.email && (
-                                <p style={{ marginBottom: '5px' }}>
-                                    <strong>Email:</strong> <a href={`mailto:${listing.seller.email}`} style={{ color: '#2C3E50' }}>{listing.seller.email}</a>
-                                </p>
-                            )}
-                            {listing.seller?.contact && (
-                                <p><strong>Phone:</strong> {listing.seller.contact}</p>
-                            )}
-                            {!listing.seller?.email && !listing.seller?.contact && (
-                                <p>No contact information provided by seller.</p>
-                            )}
-                        </div>
                     ) : (
                         <div className="buyer-actions" style={{ marginTop: '20px', display: 'flex', gap: '10px', alignItems: 'center' }}>
                             <div style={{ display: 'flex', gap: '10px', flex: 1 }}>
@@ -172,7 +157,8 @@ const ListingDetail = () => {
                                     style={{
                                         flex: 2,
                                         opacity: (listing.stockCount === 0 || listing.status !== 'Available') ? 0.5 : 1,
-                                        cursor: (listing.stockCount === 0 || listing.status !== 'Available') ? 'not-allowed' : 'pointer'
+                                        cursor: (listing.stockCount === 0 || listing.status !== 'Available') ? 'not-allowed' : 'pointer',
+                                        height: '50px'
                                     }}
                                 >
                                     {addingToCart ? 'Adding...' : (listing.stockCount === 0 ? 'Out of Stock' : 'Add to Cart')}
@@ -192,6 +178,7 @@ const ListingDetail = () => {
                                         fontWeight: '600',
                                         opacity: listing.status !== 'Available' ? 0.5 : 1,
                                         cursor: listing.status !== 'Available' ? 'not-allowed' : 'pointer',
+                                        height: '50px'
                                     }}
                                 >
                                     Contact
@@ -221,6 +208,45 @@ const ListingDetail = () => {
                     </div>
                 )}
             </div>
+
+            {/* Contact Modal */}
+            {revealContact && (
+                <div className="modal-overlay" onClick={() => setRevealContact(false)}>
+                    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                        <h4 style={{ marginBottom: '15px', color: '#2F5233', fontSize: '1.5rem', fontWeight: 700 }}>Contact Information</h4>
+
+                        {listing.seller?.email && (
+                            <p style={{ marginBottom: '10px', fontSize: '1.1rem' }}>
+                                <strong>Email:</strong> <a href={`mailto:${listing.seller.email}`} style={{ color: '#2C3E50', textDecoration: 'none' }}>{listing.seller.email}</a>
+                            </p>
+                        )}
+                        {listing.seller?.contact && (
+                            <p style={{ fontSize: '1.1rem', marginBottom: '10px' }}><strong>Phone:</strong> {listing.seller.contact}</p>
+                        )}
+                        {!listing.seller?.email && !listing.seller?.contact && (
+                            <p style={{ color: '#7f8c8d' }}>No contact information provided by seller.</p>
+                        )}
+
+                        <button
+                            className="btn-primary"
+                            onClick={() => setRevealContact(false)}
+                            style={{
+                                marginTop: '20px',
+                                width: '100%',
+                                padding: '12px',
+                                borderRadius: '8px',
+                                backgroundColor: '#94C973',
+                                color: '#1a202c',
+                                fontWeight: 'bold',
+                                border: 'none',
+                                cursor: 'pointer'
+                            }}
+                        >
+                            OK
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

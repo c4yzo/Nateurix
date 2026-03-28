@@ -13,24 +13,29 @@ const ListingCard = ({ listing }) => {
                         <div className="placeholder-image">No Image</div>
                     )}
 
+                    <span className="glass-category-badge">{listing.category}</span>
+
                     {listing.status !== 'Available' && (
                         <div className={`status-overlay ${listing.status.toLowerCase()}`}>
                             {listing.status}
                         </div>
                     )}
                 </div>
+
                 <div className="card-content">
-                    <div className="card-header">
-                        <span className="category-badge">{listing.category}</span>
-                        <h3 className="listing-title">{listing.title}</h3>
+                    <h3 className="listing-title">{listing.title}</h3>
+                    <p className="listing-seller">By {listing.seller?.name?.split(' ')[0] || 'Unknown'}</p>
+
+                    <div className="card-footer">
+                        <p className="listing-price">
+                            ₹{listing.price.toFixed(2)}
+                            {listing.category === 'Tool' && <span className="price-suffix"> / day</span>}
+                        </p>
+
+                        <div className="action-circle">
+                            <span className="arrow-icon">→</span>
+                        </div>
                     </div>
-                    <p className="listing-price">
-                        ${listing.price.toFixed(2)}
-                        {listing.category === 'Tool' && <span style={{ fontSize: '0.8rem', color: '#666', fontWeight: 'normal' }}> / day</span>}
-                    </p>
-                    <p className="listing-seller">
-                        By: {listing.seller?.name || 'Unknown User'}
-                    </p>
                 </div>
             </Link>
         </div>

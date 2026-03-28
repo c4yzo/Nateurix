@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './Navbar.scss';
+import logo from '../../assets/images/logo.png';
 
 const Navbar = () => {
     const navigate = useNavigate();
@@ -44,7 +45,8 @@ const Navbar = () => {
             <nav className="navbar container">
                 <div className="navbar-brand">
                     <Link to="/">
-                        <span className="brand-highlight">Nateur</span>ix
+                        <img src={logo} alt="Nateurix Logo" className="brand-logo" />
+                        <span className="brand-text">Nateurix</span>
                     </Link>
                 </div>
 
@@ -56,28 +58,38 @@ const Navbar = () => {
                     {userInfo ? (
                         <>
                             <li className="nav-item">
-                                <Link to="/create-listing" className="btn-register" style={{ backgroundColor: '#94C973', color: '#2C3E50', marginRight: '10px' }}>Post Ad</Link>
-                            </li>
-                            <li className="nav-item">
-                                <Link to="/my-ads" className="nav-link" style={{ fontWeight: 600, color: '#2F5233', marginRight: '10px' }}>My Ads</Link>
-                            </li>
-                            <li className="nav-item">
-                                <Link to="/identify" className="nav-link" style={{ fontWeight: 600, color: '#8e44ad', marginRight: '10px' }}>🤖 Scanner</Link>
-                            </li>
-                            <li className="nav-item">
-                                <Link to="/purchases" className="nav-link" style={{ fontWeight: 600, color: '#2F5233', marginRight: '10px' }}>Purchases</Link>
-                            </li>
-                            <li className="nav-item">
-                                <Link to="/cart" className="nav-link cart-link" style={{ fontWeight: 600, color: '#2C3E50', marginRight: '10px', display: 'flex', alignItems: 'center' }}>
-                                    🛒 Cart
-                                    {cartCount > 0 && <span className="cart-badge" style={{ backgroundColor: '#e74c3c', color: 'white', borderRadius: '50%', padding: '2px 8px', marginLeft: '5px', fontSize: '0.8rem' }}>{cartCount}</span>}
+                                <Link to="/create-listing" className="btn-register header-btn shine-effect">
+                                    <span className="icon">🌱</span> Sell an Item
                                 </Link>
                             </li>
-                            <li className="nav-item user-greeting">
-                                Hi, {userInfo.name}
+                            <li className="nav-item">
+                                <Link to="/my-ads" className="nav-link">
+                                    <span className="icon">🌿</span> My Shop
+                                </Link>
                             </li>
                             <li className="nav-item">
-                                <button className="btn-logout" onClick={logoutHandler}>Logout</button>
+                                <Link to="/identify" className="nav-link ai-link">
+                                    <span className="icon">🤖</span> AI Identifier
+                                </Link>
+                            </li>
+                            <li className="nav-item">
+                                <Link to="/purchases" className="nav-link">
+                                    <span className="icon">📦</span> Purchases
+                                </Link>
+                            </li>
+                            <li className="nav-item">
+                                <Link to="/cart" className="nav-link cart-link">
+                                    <span className="icon">🛒</span> Cart
+                                    {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}
+                                </Link>
+                            </li>
+                            <li className="nav-item user-dropdown">
+                                <div className="user-greeting">
+                                    Hey, {userInfo.name.split(' ')[0]}
+                                </div>
+                                <div className="dropdown-menu">
+                                    <button className="btn-logout" onClick={logoutHandler}>Logout</button>
+                                </div>
                             </li>
                         </>
                     ) : (
@@ -86,7 +98,7 @@ const Navbar = () => {
                                 <Link to="/login" className="nav-link">Login</Link>
                             </li>
                             <li className="nav-item">
-                                <Link to="/register" className="btn-register">Register</Link>
+                                <Link to="/register" className="btn-register header-btn shine-effect">Sign Up</Link>
                             </li>
                         </>
                     )}

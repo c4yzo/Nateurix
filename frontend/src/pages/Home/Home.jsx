@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Link } from 'react-router-dom';
 import axios from 'axios';
 import ListingCard from '../../components/ListingCard/ListingCard';
 import SearchBar from '../../components/SearchBar/SearchBar';
@@ -37,25 +36,32 @@ const Home = () => {
     const handleSearch = () => {
         setSubmittedKeyword(searchKeyword);
     };
+
     return (
         <div className="home-container">
-            <div className="hero-section">
+            <div className="discovery-header">
+                <div className="hero-mesh-background">
+                    <div className="mesh-blob blob-1"></div>
+                    <div className="mesh-blob blob-2"></div>
+                </div>
+
                 <div className="hero-content">
-                    <h1>Welcome to Nateurix</h1>
-                    <p>The marketplace for plants, seeds, and gardening tools.</p>
-                    <div className="hero-buttons">
-                        <Link to="/register" className="btn-primary">Join Now</Link>
-                        <Link to="/create-listing" className="btn-secondary">Start Selling</Link>
+                    <h1 className="hero-title">Cultivate Your Green Space</h1>
+                    <p className="hero-subtitle">
+                        Discover rare seeds, beautiful plants, and premium tools from local growers.
+                    </p>
+
+                    <div className="search-wrapper">
+                        <SearchBar
+                            searchKeyword={searchKeyword}
+                            setSearchKeyword={setSearchKeyword}
+                            onSearch={handleSearch}
+                        />
                     </div>
                 </div>
             </div>
 
-            <div className="discovery-section container" style={{ marginTop: '-30px', position: 'relative', zIndex: 10 }}>
-                <SearchBar
-                    searchKeyword={searchKeyword}
-                    setSearchKeyword={setSearchKeyword}
-                    onSearch={handleSearch}
-                />
+            <div className="filters-section container">
                 <CategoryFilters
                     activeCategory={activeCategory}
                     setActiveCategory={setActiveCategory}
@@ -63,15 +69,22 @@ const Home = () => {
             </div>
 
             <div className="listings-section container">
-                <h2>{activeCategory === 'All' ? 'Latest Listings' : `${activeCategory}s`}</h2>
+                <div className="listings-header">
+                    <h2>{activeCategory === 'All' ? 'Latest Additions' : `${activeCategory}s`}</h2>
+                    <span className="results-count">
+                        {!loading && !error && `${listings.length} items found`}
+                    </span>
+                </div>
+
                 {loading ? (
                     <div className="loader">Loading...</div>
                 ) : error ? (
                     <div className="error-message">{error}</div>
                 ) : listings.length === 0 ? (
-                    <div className="empty-state" style={{ textAlign: 'center', padding: '40px' }}>
+                    <div className="empty-state">
+                        <div className="empty-icon">🌱</div>
                         <h3>No matches found</h3>
-                        <p>Try adjusting your search or filters.</p>
+                        <p>Try adjusting your search or category filters.</p>
                     </div>
                 ) : (
                     <div className="listings-grid">

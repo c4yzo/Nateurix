@@ -28,7 +28,7 @@
     overflow: hidden;
     display: flex;
     box-shadow: $box-shadow;
-    min-height: 500px;
+    height: 80vh;
 }
 
 .detail-image-section {
@@ -56,6 +56,7 @@
     flex: 1;
     padding: $spacing-xl;
     display: flex;
+    flex-direction: column;
     flex-direction: column;
 
     .category-meta {
@@ -95,6 +96,21 @@
 
     .description-box {
         margin-bottom: $spacing-lg;
+        flex: 1;
+        overflow-y: auto;
+        min-height: 80px;
+        padding-right: 10px;
+
+        /* Hide scrollbar for cleaner UI */
+        -ms-overflow-style: none;
+        /* IE and Edge */
+        scrollbar-width: none;
+        /* Firefox */
+
+        &::-webkit-scrollbar {
+            display: none;
+            /* Chrome, Safari and Opera */
+        }
 
         h3 {
             font-size: 1.2rem;
@@ -112,11 +128,11 @@
     }
 
     .seller-info {
-        margin-bottom: $spacing-xl;
+        margin-bottom: $spacing-sm;
         background-color: #f9f9f9;
         padding: $spacing-md;
         border-radius: $border-radius;
-        flex: 1;
+        flex-shrink: 0;
 
         h3 {
             font-size: 1.1rem;
@@ -157,5 +173,52 @@
     .detail-image-section {
         height: 400px;
         flex: none;
+    }
+
+    .detail-card {
+        height: auto;
+        max-height: none;
+
+        .description-box {
+            overflow-y: visible;
+            flex: none;
+        }
+    }
+}
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+}
+
+.modal-content {
+    background: white;
+    padding: 30px;
+    border-radius: 16px;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    animation: modPopIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes modPopIn {
+    0% {
+        transform: scale(0.8);
+        opacity: 0;
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 1;
     }
 }
