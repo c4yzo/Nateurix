@@ -9,14 +9,16 @@ const Cart = () => {
     const [error, setError] = useState('');
     const navigate = useNavigate();
 
-    const userInfo = localStorage.getItem('userInfo') ? JSON.parse(localStorage.getItem('userInfo')) : null;
+    const userInfoString = localStorage.getItem('userInfo');
+    const userInfo = React.useMemo(() => {
+        return userInfoString ? JSON.parse(userInfoString) : null;
+    }, [userInfoString]);
 
     const fetchCart = useCallback(async () => {
+        if (!userInfo || !userInfo.token) return;
         try {
             const config = {
-                headers: {
-                    Authorization: `Bearer ${userInfo.token}`,
-                },
+                headers: { Authorization: `Bearer ${userInfo.token}` },
             };
             const { data } = await axios.get('/api/cart', config);
             setCartItems(data.items || []);
@@ -25,7 +27,7 @@ const Cart = () => {
             setError(err.response?.data?.message || err.message);
             setLoading(false);
         }
-    }, [userInfo.token]);
+    }, [userInfo]);
 
     useEffect(() => {
         if (!userInfo) {
@@ -35,7 +37,7 @@ const Cart = () => {
         fetchCart();
     }, [navigate, userInfo, fetchCart]);
 
-    const updateQuantity = async (listingId, quantity) => {
+    const updateCartItem = async (listingId, quantity, daysRented) => {
         try {
             const config = {
                 headers: {
@@ -43,10 +45,10 @@ const Cart = () => {
                     Authorization: `Bearer ${userInfo.token}`,
                 },
             };
-            const { data } = await axios.put('/api/cart/update', { listingId, quantity }, config);
+            const { data } = await axios.put('/api/cart/update', { listingId, quantity, daysRented }, config);
             setCartItems(data.items || []);
         } catch (err) {
-            alert(err.response?.data?.message || 'Error updating quantity');
+            alert(err.response?.data?.message || 'Error updating cart');
         }
     };
 
@@ -71,6 +73,11 @@ const Cart = () => {
     // Calculate total safely
     const cartTotal = cartItems.reduce((acc, item) => {
         if (!item.listing) return acc;
+        const transactionType = item.listing.transactionType || 'Sale';
+        const isRent = transactionType.toLowerCase() === 'rent' || item.listing.category === 'Tool';
+        if (isRent) {
+            return acc + (item.listing.price * item.quantity * (item.daysRented || 1));
+        }
         return acc + (item.listing.price * item.quantity);
     }, 0).toFixed(2);
 
@@ -107,26 +114,49 @@ const Cart = () => {
                                         <p className="item-category">{item.listing.category}</p>
                                         <div className="item-price">
                                             ${item.listing.price.toFixed(2)}
-                                            {item.listing.category === 'Tool' && ' / day'}
+                                            {((item.listing.transactionType || 'Sale').toLowerCase() === 'rent' || item.listing.category === 'Tool') && ' / day'}
                                         </div>
                                     </div>
 
                                     <div className="item-actions">
-                                        <div className="quantity-controls">
-                                            <button
-                                                onClick={() => updateQuantity(item.listing._id, item.quantity - 1)}
-                                                disabled={item.quantity <= 1}
-                                            >
-                                                -
-                                            </button>
-                                            <span>{item.quantity}</span>
-                                            <button
-                                                onClick={() => updateQuantity(item.listing._id, item.quantity + 1)}
-                                                disabled={item.quantity >= item.listing.stockCount}
-                                            >
-                                                +
-                                            </button>
+                                        <div className="cart-controls-group">
+                                            <div className="control-label">Qty:</div>
+                                            <div className="quantity-controls">
+                                                <button
+                                                    onClick={() => updateCartItem(item.listing._id, item.quantity - 1, item.daysRented || 1)}
+                                                    disabled={item.quantity <= 1}
+                                                >
+                                                    -
+                                                </button>
+                                                <span>{item.quantity}</span>
+                                                <button
+                                                    onClick={() => updateCartItem(item.listing._id, item.quantity + 1, item.daysRented || 1)}
+                                                    disabled={item.quantity >= item.listing.stockCount}
+                                                >
+                                                    +
+                                                </button>
+                                            </div>
                                         </div>
+
+                                        {((item.listing.transactionType || 'Sale').toLowerCase() === 'rent' || item.listing.category === 'Tool') && (
+                                            <div className="cart-controls-group">
+                                                <div className="control-label">Days:</div>
+                                                <div className="quantity-controls days-controls">
+                                                    <button
+                                                        onClick={() => updateCartItem(item.listing._id, item.quantity, (item.daysRented || 1) - 1)}
+                                                        disabled={(item.daysRented || 1) <= 1}
+                                                    >
+                                                        -
+                                                    </button>
+                                                    <span>{item.daysRented || 1}</span>
+                                                    <button
+                                                        onClick={() => updateCartItem(item.listing._id, item.quantity, (item.daysRented || 1) + 1)}
+                                                    >
+                                                        +
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        )}
                                         <button
                                             className="btn-remove"
                                             onClick={() => removeFromCart(item.listing._id)}

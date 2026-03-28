@@ -1,0 +1,16 @@
+--- CREATING CHECKOUT INFO ---
+RES JSON: {
+  orderId: null,
+  rentalOrderIds: [ new ObjectId('69ad96599fd5aeff9b7ad05f') ],
+  transactionId: 'txn_mock_c9a7473ec846b824',
+  totalPrice: 100,
+  message: 'Checkout initialized. Awaiting payment.'
+}
+--- VERIFYING PAYMENT ---
+Processing Rental Orders: [ new ObjectId('69ad96599fd5aeff9b7ad05f') ]
+Saved transaction ID on RentalOrder 69ad96599fd5aeff9b7ad05f
+Updated stock for rental listing 69ad96599fd5aeff9b7ad058 to 4
+VERIFY RES: {
+  message: 'Payment verified successfully. Order complete.',
+  orderId: new ObjectId('69ad96599fd5aeff9b7ad05f')
+}

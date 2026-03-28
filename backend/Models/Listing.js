@@ -19,6 +19,12 @@ const listingSchema = new mongoose.Schema({
         enum: ['Plant', 'Seed', 'Tool', 'Fertilizer'],
         required: true,
     },
+    transactionType: {
+        type: String,
+        enum: ['Sale', 'Rent', 'sale', 'rent'],
+        required: true,
+        default: 'Sale',
+    },
     price: {
         type: Number,
         required: true,

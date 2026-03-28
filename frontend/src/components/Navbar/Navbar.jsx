@@ -62,6 +62,9 @@ const Navbar = () => {
                                 <Link to="/my-ads" className="nav-link" style={{ fontWeight: 600, color: '#2F5233', marginRight: '10px' }}>My Ads</Link>
                             </li>
                             <li className="nav-item">
+                                <Link to="/identify" className="nav-link" style={{ fontWeight: 600, color: '#8e44ad', marginRight: '10px' }}>🤖 Scanner</Link>
+                            </li>
+                            <li className="nav-item">
                                 <Link to="/purchases" className="nav-link" style={{ fontWeight: 600, color: '#2F5233', marginRight: '10px' }}>Purchases</Link>
                             </li>
                             <li className="nav-item">

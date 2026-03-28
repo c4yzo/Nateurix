@@ -1,4 +1,5 @@
 import Order from '../Models/Order.js';
+import RentalOrder from '../Models/RentalOrder.js';
 import Cart from '../Models/Cart.js';
 import Listing from '../Models/Listing.js';
 import crypto from 'crypto';
@@ -14,19 +15,18 @@ export const createCheckoutInfo = async (req, res) => {
             return res.status(400).json({ message: 'Valid shipping address is required.' });
         }
 
-        // Fetch user's cart
         const cart = await Cart.findOne({ user: req.user._id }).populate('items.listing');
 
         if (!cart || cart.items.length === 0) {
             return res.status(400).json({ message: 'Your cart is empty' });
         }
 
-        // Validate stock and build order items array securely from backend data
         let totalPrice = 0;
         const orderItems = [];
+        const rentalItemsBySeller = {};
 
         for (const item of cart.items) {
-            if (!item.listing) continue; // Skip if listing was somehow deleted
+            if (!item.listing) continue;
 
             if (item.quantity > item.listing.stockCount) {
                 return res.status(400).json({
@@ -35,41 +35,84 @@ export const createCheckoutInfo = async (req, res) => {
             }
 
             const itemPrice = item.listing.price;
-            totalPrice += itemPrice * item.quantity;
+            let transactionType = item.listing.transactionType || 'Sale';
 
-            // Fallback for legacy items that don't have a pickup address
+            // Standardize case to handle lowercase DB entries
+            if (transactionType.toLowerCase() === 'rent') transactionType = 'Rent';
+            if (transactionType.toLowerCase() === 'sale') transactionType = 'Sale';
+
+            const daysRented = item.daysRented || 1;
+
+            if (transactionType === 'Rent') {
+                totalPrice += itemPrice * item.quantity * daysRented;
+            } else {
+                totalPrice += itemPrice * item.quantity;
+            }
+
             const itemPickupAddress = item.listing.pickupAddress || 'LEGACY_ITEM_NO_ADDRESS';
 
-            orderItems.push({
-                listing: item.listing._id,
-                quantity: item.quantity,
-                price: itemPrice, // snapshot current price
-                pickupAddress: itemPickupAddress // snapshot the pickup location securely
-            });
+            if (transactionType === 'Rent') {
+                const sellerId = item.listing.seller.toString();
+                if (!rentalItemsBySeller[sellerId]) {
+                    rentalItemsBySeller[sellerId] = [];
+                }
+                rentalItemsBySeller[sellerId].push({
+                    listing: item.listing._id,
+                    quantity: item.quantity,
+                    daysRented: daysRented,
+                    pricePerDay: itemPrice,
+                    pickupAddress: itemPickupAddress
+                });
+            } else {
+                orderItems.push({
+                    listing: item.listing._id,
+                    quantity: item.quantity,
+                    price: itemPrice,
+                    pickupAddress: itemPickupAddress
+                });
+            }
         }
 
-        if (orderItems.length === 0) {
+        if (orderItems.length === 0 && Object.keys(rentalItemsBySeller).length === 0) {
             return res.status(400).json({ message: 'No valid items in cart to checkout.' });
         }
 
-        // Create the pending order
-        const order = new Order({
-            user: req.user._id,
-            orderItems,
-            shippingAddress,
-            totalPrice,
-            paymentStatus: 'Pending'
-        });
+        let createdStandardOrderId = null;
+        let createdRentalOrderIds = [];
 
-        const createdOrder = await order.save();
+        if (orderItems.length > 0) {
+            const order = new Order({
+                user: req.user._id,
+                orderItems,
+                shippingAddress,
+                totalPrice: orderItems.reduce((acc, item) => acc + (item.price * item.quantity), 0),
+                paymentStatus: 'Pending'
+            });
+            const createdOrder = await order.save();
+            createdStandardOrderId = createdOrder._id;
+        }
 
-        // SIMULATE PAYMENT GATEWAY INITIALIZATION
-        // In reality, you'd call Razorpay.orders.create() here
-        // We will generate a mock transaction ID that the frontend modal will use
+        for (const sellerId in rentalItemsBySeller) {
+            const rentedItems = rentalItemsBySeller[sellerId];
+            const rentalTotal = rentedItems.reduce((acc, item) => acc + (item.pricePerDay * item.quantity * item.daysRented), 0);
+
+            const rentalOrder = new RentalOrder({
+                buyer: req.user._id,
+                seller: sellerId,
+                rentedItems,
+                shippingAddress,
+                totalPaid: rentalTotal,
+                rentalStatus: 'Pending'
+            });
+            const createdRental = await rentalOrder.save();
+            createdRentalOrderIds.push(createdRental._id);
+        }
+
         const mockTransactionId = `txn_mock_${crypto.randomBytes(8).toString('hex')}`;
 
         res.status(201).json({
-            orderId: createdOrder._id,
+            orderId: createdStandardOrderId,
+            rentalOrderIds: createdRentalOrderIds,
             transactionId: mockTransactionId,
             totalPrice,
             message: 'Checkout initialized. Awaiting payment.',
@@ -86,51 +129,54 @@ export const createCheckoutInfo = async (req, res) => {
 // @access  Private
 export const verifyPayment = async (req, res) => {
     try {
-        const { orderId, transactionId, signature } = req.body;
+        const { orderId, rentalOrderIds, transactionId, signature } = req.body;
 
-        // In a real app (like Razorpay), you verify the signature using crypto.createHmac and your API Secret.
-        // For our mock, we just check if they sent a signature back indicating the mock modal succeeded.
         if (!signature || signature !== 'mock_success_signature') {
             return res.status(400).json({ message: 'Invalid payment signature. Payment failed or was tampered with.' });
         }
 
-        const order = await Order.findById(orderId);
+        if (orderId) {
+            const order = await Order.findById(orderId);
+            if (order && order.paymentStatus !== 'Completed') {
+                order.paymentStatus = 'Completed';
+                order.paymentTransactionId = transactionId;
+                await order.save();
 
-        if (!order) {
-            return res.status(404).json({ message: 'Order not found' });
-        }
-
-        if (order.paymentStatus === 'Completed') {
-            return res.status(400).json({ message: 'Order is already paid' });
-        }
-
-        // Verify the transaction ID matches (basic security check)
-        // In reality, Razorpay sends back the orderId mapped to the transaction
-
-        // 1. Mark Order as Completed
-        order.paymentStatus = 'Completed';
-        order.paymentTransactionId = transactionId;
-        await order.save();
-
-        // 2. Deduct Stock Count safely
-        for (const item of order.orderItems) {
-            const listing = await Listing.findById(item.listing);
-            // We ignore if listing was deleted in the 3 minutes it took to pay
-            if (listing) {
-                // Ensure we don't go below 0 visually
-                listing.stockCount = Math.max(0, listing.stockCount - item.quantity);
-
-                // If it hits 0, the virtual field 'isAvailable' naturally flags false, 
-                // but we proactively set status to Sold as well for UI consistency
-                if (listing.stockCount === 0 && listing.category !== 'Tool') {
-                    listing.status = 'Sold';
+                for (const item of order.orderItems) {
+                    const listing = await Listing.findById(item.listing);
+                    if (listing) {
+                        listing.stockCount = Math.max(0, listing.stockCount - item.quantity);
+                        if (listing.stockCount === 0 && listing.category !== 'Tool') {
+                            listing.status = 'Sold';
+                        }
+                        await listing.save();
+                    }
                 }
-
-                await listing.save();
             }
         }
 
-        // 3. Clear the user's cart
+        if (rentalOrderIds && rentalOrderIds.length > 0) {
+            for (const rId of rentalOrderIds) {
+                const rentalOrder = await RentalOrder.findById(rId);
+                // rentalStatus starts at Pending
+                if (rentalOrder && !rentalOrder.paymentTransactionId) {
+                    rentalOrder.paymentTransactionId = transactionId;
+                    await rentalOrder.save();
+
+                    for (const item of rentalOrder.rentedItems) {
+                        const listing = await Listing.findById(item.listing);
+                        if (listing) {
+                            listing.stockCount = Math.max(0, listing.stockCount - item.quantity);
+                            if (listing.stockCount === 0) {
+                                listing.status = 'Rented';
+                            }
+                            await listing.save();
+                        }
+                    }
+                }
+            }
+        }
+
         await Cart.findOneAndUpdate(
             { user: req.user._id },
             { $set: { items: [] } }
@@ -138,7 +184,7 @@ export const verifyPayment = async (req, res) => {
 
         res.status(200).json({
             message: 'Payment verified successfully. Order complete.',
-            orderId: order._id
+            orderId: orderId || (rentalOrderIds && rentalOrderIds[0])
         });
 
     } catch (error) {
@@ -235,9 +281,34 @@ export const getMyPurchases = async (req, res) => {
             paymentStatus: { $in: ['Completed', 'Pending'] } // Or just Completed
         })
             .populate('orderItems.listing', 'title imageUrl price')
-            .sort({ createdAt: -1 });
+            .sort({ createdAt: -1 })
+            .lean();
 
-        res.json(orders);
+        const rentals = await RentalOrder.find({
+            buyer: req.user._id
+        })
+            .populate('rentedItems.listing', 'title imageUrl price')
+            .sort({ createdAt: -1 })
+            .lean();
+
+        const mappedRentals = rentals.map(rental => ({
+            _id: rental._id,
+            createdAt: rental.createdAt,
+            totalPrice: rental.totalPaid,
+            isRental: true,
+            orderItems: rental.rentedItems.map(item => ({
+                _id: item._id,
+                listing: item.listing,
+                quantity: item.quantity,
+                // Make the price calculation work with frontend (price * quantity)
+                price: item.pricePerDay * item.daysRented,
+                deliveryStatus: rental.rentalStatus,
+            }))
+        }));
+
+        const combined = [...orders, ...mappedRentals].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+        res.json(combined);
     } catch (error) {
         console.error('Error fetching purchases:', error);
         res.status(500).json({ message: error.message });

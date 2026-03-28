@@ -12,10 +12,12 @@ import Cart from './pages/Cart/Cart';
 import Checkout from './pages/Checkout/Checkout';
 import OrderSuccess from './pages/OrderSuccess/OrderSuccess';
 import OrderFailed from './pages/OrderFailed/OrderFailed';
+import PlantIdentifier from './pages/PlantIdentifier/PlantIdentifier';
 import PurchaseHistory from './pages/PurchaseHistory/PurchaseHistory';
 import AdminLogin from './pages/AdminLogin/AdminLogin';
 import AdminDashboard from './pages/AdminDashboard/AdminDashboard';
 import NotFound from './pages/NotFound/NotFound';
+import AgriBotWidget from './components/AgriBotWidget/AgriBotWidget';
 import './App.scss';
 
 function App() {
@@ -23,6 +25,7 @@ function App() {
     <Router>
       <div className="App">
         <Navbar />
+        <AgriBotWidget />
         <main className="main-content">
           <Routes>
             <Route path="/" element={<Home />} />
@@ -34,6 +37,7 @@ function App() {
             <Route path="/edit-listing/:id" element={<EditListing />} />
             <Route path="/cart" element={<Cart />} />
             <Route path="/checkout" element={<Checkout />} />
+            <Route path="/identify" element={<PlantIdentifier />} />
             <Route path="/purchases" element={<PurchaseHistory />} />
             <Route path="/order-success/:id" element={<OrderSuccess />} />
             <Route path="/order-failed" element={<OrderFailed />} />

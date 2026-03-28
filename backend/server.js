@@ -10,6 +10,8 @@ import cartRoutes from './Routes/cartRoutes.js';
 import orderRoutes from './Routes/orderRoutes.js';
 import reviewRoutes from './Routes/reviewRoutes.js';
 import adminRoutes from './Routes/adminRoutes.js';
+import botRoutes from './Routes/botRoutes.js';
+import mlRoutes from './Routes/mlRoutes.js';
 
 dotenv.config();
 
@@ -45,6 +47,8 @@ app.use('/api/cart', cartRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/bot', botRoutes);
+app.use('/api/ml', mlRoutes);
 
 const __dirname = path.resolve();
 app.use('/uploads', express.static(path.join(__dirname, '/uploads')));

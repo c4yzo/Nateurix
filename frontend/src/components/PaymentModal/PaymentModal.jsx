@@ -39,6 +39,7 @@ const PaymentModal = ({ checkoutData, onClose }) => {
                 // Submit mock signature to backend
                 const payload = {
                     orderId: checkoutData.orderId,
+                    rentalOrderIds: checkoutData.rentalOrderIds,
                     transactionId: checkoutData.transactionId,
                     signature: 'mock_success_signature' // Mocks razorpay_signature
                 };
@@ -46,7 +47,8 @@ const PaymentModal = ({ checkoutData, onClose }) => {
                 await axios.post('/api/orders/verify-payment', payload, config);
 
                 setProcessing(false);
-                navigate(`/order-success/${checkoutData.orderId}`);
+                const redirectId = checkoutData.orderId || (checkoutData.rentalOrderIds && checkoutData.rentalOrderIds[0]);
+                navigate(`/order-success/${redirectId}`);
             } catch (err) {
                 console.error(err);
                 setProcessing(false);

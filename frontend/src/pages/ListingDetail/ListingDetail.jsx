@@ -74,7 +74,13 @@ const ListingDetail = () => {
                     Authorization: `Bearer ${userInfo.token}`,
                 },
             };
-            await axios.post('/api/cart/add', { listingId: id, quantity: 1 }, config);
+            const isRent = listing.transactionType === 'Rent' || listing.category === 'Tool';
+            const payload = {
+                listingId: id,
+                quantity: 1,
+                ...(isRent && { daysRented: 1 })
+            };
+            await axios.post('/api/cart/add', payload, config);
             navigate('/cart');
         } catch (err) {
             alert(err.response?.data?.message || 'Error adding item to cart');
@@ -118,7 +124,7 @@ const ListingDetail = () => {
 
                     <h2 className="price">
                         ${listing.price?.toFixed(2)}
-                        {listing.category === 'Tool' && <span style={{ fontSize: '1.2rem', color: '#666', fontWeight: 'normal' }}> / day</span>}
+                        {(listing.transactionType === 'Rent' || listing.category === 'Tool') && <span style={{ fontSize: '1.2rem', color: '#666', fontWeight: 'normal' }}> / day</span>}
                     </h2>
 
                     <div className="description-box">

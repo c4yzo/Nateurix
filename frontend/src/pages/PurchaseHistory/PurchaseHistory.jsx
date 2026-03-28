@@ -134,8 +134,8 @@ const PurchaseHistory = () => {
                                                         fontSize: '0.8rem',
                                                         fontWeight: 600,
                                                         textTransform: 'uppercase',
-                                                        backgroundColor: item.deliveryStatus === 'Delivered' ? '#d4edda' : item.deliveryStatus === 'Shipped' ? '#cce5ff' : '#fff3cd',
-                                                        color: item.deliveryStatus === 'Delivered' ? '#155724' : item.deliveryStatus === 'Shipped' ? '#004085' : '#856404'
+                                                        backgroundColor: ['Delivered', 'Completed', 'Active'].includes(item.deliveryStatus) ? '#d4edda' : ['Shipped', 'Delivering to Buyer', 'Returning to Seller'].includes(item.deliveryStatus) ? '#cce5ff' : '#fff3cd',
+                                                        color: ['Delivered', 'Completed', 'Active'].includes(item.deliveryStatus) ? '#155724' : ['Shipped', 'Delivering to Buyer', 'Returning to Seller'].includes(item.deliveryStatus) ? '#004085' : '#856404'
                                                     }}>
                                                         📦 {item.deliveryStatus || 'Processing'}
                                                     </span>
@@ -148,7 +148,7 @@ const PurchaseHistory = () => {
                                                 >
                                                     View Item
                                                 </button>
-                                                {item.deliveryStatus === 'Delivered' && (
+                                                {['Delivered', 'Completed'].includes(item.deliveryStatus) && (
                                                     <button
                                                         onClick={() => openReviewModal(item.listing._id)}
                                                         className="btn-primary"

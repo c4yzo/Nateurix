@@ -8,7 +8,7 @@ export const getCart = async (req, res) => {
     try {
         let cart = await Cart.findOne({ user: req.user._id }).populate({
             path: 'items.listing',
-            select: 'title price imageUrl stockCount status category'
+            select: 'title price imageUrl stockCount status category transactionType'
         });
 
         if (!cart) {
@@ -25,7 +25,7 @@ export const getCart = async (req, res) => {
 // @route   POST /api/cart/add
 // @access  Private
 export const addToCart = async (req, res) => {
-    const { listingId, quantity } = req.body;
+    const { listingId, quantity, daysRented } = req.body;
 
     try {
         const listing = await Listing.findById(listingId);
@@ -51,9 +51,16 @@ export const addToCart = async (req, res) => {
                 return res.status(400).json({ message: `Cannot add more than available stock (${listing.stockCount}). You already have ${cart.items[itemIndex].quantity} in cart.` });
             }
             cart.items[itemIndex].quantity = newQuantity;
+            if (daysRented) {
+                cart.items[itemIndex].daysRented = parseInt(daysRented);
+            }
         } else {
             // Item does not exist in cart
-            cart.items.push({ listing: listingId, quantity: parseInt(quantity) });
+            cart.items.push({
+                listing: listingId,
+                quantity: parseInt(quantity),
+                daysRented: parseInt(daysRented) || 1
+            });
         }
 
         await cart.save();
@@ -61,7 +68,7 @@ export const addToCart = async (req, res) => {
         // Re-populate for response
         cart = await Cart.findById(cart._id).populate({
             path: 'items.listing',
-            select: 'title price imageUrl stockCount status category'
+            select: 'title price imageUrl stockCount status category transactionType'
         });
 
         res.json(cart);
@@ -74,7 +81,7 @@ export const addToCart = async (req, res) => {
 // @route   PUT /api/cart/update
 // @access  Private
 export const updateCartItem = async (req, res) => {
-    const { listingId, quantity } = req.body;
+    const { listingId, quantity, daysRented } = req.body;
 
     try {
         const cart = await Cart.findOne({ user: req.user._id });
@@ -104,13 +111,16 @@ export const updateCartItem = async (req, res) => {
             cart.items.splice(itemIndex, 1);
         } else {
             cart.items[itemIndex].quantity = parseInt(quantity);
+            if (daysRented) {
+                cart.items[itemIndex].daysRented = parseInt(daysRented);
+            }
         }
 
         await cart.save();
 
         const updatedCart = await Cart.findById(cart._id).populate({
             path: 'items.listing',
-            select: 'title price imageUrl stockCount status category'
+            select: 'title price imageUrl stockCount status category transactionType'
         });
 
         res.json(updatedCart);
@@ -137,7 +147,7 @@ export const removeFromCart = async (req, res) => {
 
         const updatedCart = await Cart.findById(cart._id).populate({
             path: 'items.listing',
-            select: 'title price imageUrl stockCount status category'
+            select: 'title price imageUrl stockCount status category transactionType'
         });
 
         res.json(updatedCart);

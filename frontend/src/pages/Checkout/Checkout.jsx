@@ -48,7 +48,7 @@ const Checkout = () => {
             }
         };
         fetchCart();
-    }, [navigate, userInfo]);
+    }, [navigate, userInfo]); // userInfo is memoized, so this is safe now
 
     const handleInputChange = (e) => {
         setShippingAddress({
@@ -59,7 +59,14 @@ const Checkout = () => {
 
     const cartTotal = cartItems.reduce((acc, item) => {
         if (!item.listing) return acc;
-        return acc + (item.listing.price * item.quantity);
+        const transactionType = item.listing.transactionType || 'Sale';
+        const daysRented = item.daysRented || 1;
+
+        if (transactionType.toLowerCase() === 'rent') {
+            return acc + (item.listing.price * item.quantity * daysRented);
+        } else {
+            return acc + (item.listing.price * item.quantity);
+        }
     }, 0).toFixed(2);
 
     const handleProceedToPayment = async (e) => {
@@ -166,13 +173,21 @@ const Checkout = () => {
                         <div className="summary-items">
                             {cartItems.map(item => {
                                 if (!item.listing) return null;
+                                const transactionType = item.listing.transactionType || 'Sale';
+                                const isRent = transactionType.toLowerCase() === 'rent';
+                                const itemTotal = isRent
+                                    ? (item.listing.price * item.quantity * (item.daysRented || 1)).toFixed(2)
+                                    : (item.listing.price * item.quantity).toFixed(2);
+
                                 return (
                                     <div key={item.listing._id} className="summary-item">
                                         <div className="item-info">
                                             <span className="item-title">{item.listing.title}</span>
-                                            <span className="item-qty">x{item.quantity}</span>
+                                            <span className="item-qty">
+                                                x{item.quantity} {isRent && `(${item.daysRented || 1} Days)`}
+                                            </span>
                                         </div>
-                                        <span className="item-price">${(item.listing.price * item.quantity).toFixed(2)}</span>
+                                        <span className="item-price">${itemTotal}</span>
                                     </div>
                                 );
                             })}

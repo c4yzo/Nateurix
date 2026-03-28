@@ -61,8 +61,8 @@
             }
 
             .item-image {
-                width: 100px;
-                height: 100px;
+                width: 140px;
+                height: 140px;
                 flex-shrink: 0;
                 border-radius: $border-radius;
                 overflow: hidden;
@@ -125,9 +125,23 @@
 
                 @media (max-width: 600px) {
                     width: 100%;
-                    flex-direction: row;
-                    justify-content: space-between;
+                    flex-direction: column;
+                    align-items: flex-end;
+                    gap: $spacing-sm;
+                }
+
+                .cart-controls-group {
+                    display: flex;
                     align-items: center;
+                    gap: 10px;
+
+                    .control-label {
+                        font-size: 0.85rem;
+                        color: #777;
+                        font-weight: 600;
+                        width: 35px;
+                        text-align: right;
+                    }
                 }
 
                 .quantity-controls {

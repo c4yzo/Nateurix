@@ -11,6 +11,12 @@ const cartItemSchema = new mongoose.Schema({
         required: true,
         default: 1,
         min: [1, 'Quantity cannot be less than 1'],
+    },
+    daysRented: {
+        type: Number,
+        required: true,
+        default: 1,
+        min: [1, 'Days rented cannot be less than 1'],
     }
 });
 
