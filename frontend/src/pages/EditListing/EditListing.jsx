@@ -137,7 +137,7 @@ const EditListing = () => {
                             </select>
                         </div>
                         <div className="form-group half">
-                            <label htmlFor="price">{category === 'Tool' ? 'Price per day ($)' : 'Price ($)'}</label>
+                            <label htmlFor="price">{category === 'Tool' ? 'Price per day (₹)' : 'Price (₹)'}</label>
                             <input type="number" id="price" name="price" value={price} onChange={onChange} required min="0" step="0.01" />
                         </div>
                     </div>

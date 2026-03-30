@@ -187,7 +187,7 @@ const Checkout = () => {
                                                 x{item.quantity} {isRent && `(${item.daysRented || 1} Days)`}
                                             </span>
                                         </div>
-                                        <span className="item-price">${itemTotal}</span>
+                                        <span className="item-price">₹{itemTotal}</span>
                                     </div>
                                 );
                             })}
@@ -196,7 +196,7 @@ const Checkout = () => {
                         <div className="summary-totals">
                             <div className="totals-row">
                                 <span>Subtotal</span>
-                                <span>${cartTotal}</span>
+                                <span>₹{cartTotal}</span>
                             </div>
                             <div className="totals-row">
                                 <span>Shipping</span>
@@ -204,7 +204,7 @@ const Checkout = () => {
                             </div>
                             <div className="totals-row grand-total">
                                 <span>Total</span>
-                                <span>${cartTotal}</span>
+                                <span>₹{cartTotal}</span>
                             </div>
                         </div>
                     </div>

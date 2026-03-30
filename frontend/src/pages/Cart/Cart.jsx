@@ -173,7 +173,7 @@ const Cart = () => {
                         <h3>Order Summary</h3>
                         <div className="summary-row total">
                             <span>Subtotal</span>
-                            <span>${cartTotal}</span>
+                            <span>₹{cartTotal}</span>
                         </div>
                         <p className="checkout-note">Shipping and taxes calculated at checkout.</p>
                         <button className="btn-primary btn-checkout" onClick={() => navigate('/checkout')}>Proceed to Checkout</button>

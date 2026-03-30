@@ -94,7 +94,7 @@ const ListingDetail = () => {
     return (
         <div className="listing-detail-container container">
             <Link to="/" className="btn-back">
-                &larr; Back to Listings
+                &larr; Back to Discover
             </Link>
 
             <div className="detail-card">
@@ -108,7 +108,13 @@ const ListingDetail = () => {
 
                 <div className="detail-content-section">
                     <div className="category-meta">
-                        <span className="badge">{listing.category}</span>
+                        <span className="badge">
+                            {listing.category === 'Plant' ? '🪴 ' : ''}
+                            {listing.category === 'Seed' ? '🌱 ' : ''}
+                            {listing.category === 'Tool' ? '🪏 ' : ''}
+                            {listing.category === 'Fertilizer' ? '🧪 ' : ''}
+                            {listing.category}
+                        </span>
                         {listing.status !== 'Available' && (
                             <span className={`status-badge ${listing.status.toLowerCase()}`}>
                                 {listing.status}
@@ -118,7 +124,7 @@ const ListingDetail = () => {
 
                     <h1 className="title">{listing.title}</h1>
 
-                    <div style={{ marginBottom: '15px' }}>
+                    <div style={{ marginBottom: '5px' }}>
                         <AverageRatingBadge rating={listing.averageRating} numReviews={listing.numReviews} />
                     </div>
 
@@ -134,64 +140,59 @@ const ListingDetail = () => {
 
                     <div className="seller-info">
                         <h3>Seller Information</h3>
-                        <p><strong>Name:</strong> {listing.seller?.name}</p>
-                        <p className="posted-date">Posted on: {new Date(listing.createdAt).toLocaleDateString()}</p>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginTop: '10px' }}>
+                            <div style={{ fontSize: '2rem', background: '#f0f4f8', borderRadius: '50%', width: '55px', height: '55px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #e2e8f0' }}>👤</div>
+                            <div>
+                                <p style={{ margin: 0, fontWeight: 700, fontSize: '1.2rem', color: '#2C3E50' }}>{listing.seller?.name}</p>
+                                <p className="posted-date" style={{ margin: 0, marginTop: '2px' }}>Posted on: {new Date(listing.createdAt).toLocaleDateString()}</p>
+                            </div>
+                        </div>
                     </div>
 
                     {userInfo && userInfo._id === listing.seller?._id ? (
-                        <div style={{ display: 'flex', gap: '10px', marginTop: '15px' }}>
-                            <Link to={`/edit-listing/${listing._id}`} className="btn-primary" style={{ flex: 1, textAlign: 'center', backgroundColor: '#94C973', color: '#2C3E50' }}>
+                        <div style={{ display: 'flex', gap: '15px', marginTop: '15px' }}>
+                            <Link to={`/edit-listing/${listing._id}`} className="btn-primary edit-btn" style={{ flex: 1, textAlign: 'center', height: '50px', display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none' }}>
                                 Edit Listing
                             </Link>
-                            <button className="btn-primary" onClick={handleDelete} style={{ flex: 1, backgroundColor: '#e74c3c' }}>
+                            <button className="btn-secondary delete-btn" onClick={handleDelete} style={{ flex: 1, height: '50px' }}>
                                 Delete
                             </button>
                         </div>
                     ) : (
-                        <div className="buyer-actions" style={{ marginTop: '20px', display: 'flex', gap: '10px', alignItems: 'center' }}>
-                            <div style={{ display: 'flex', gap: '10px', flex: 1 }}>
-                                <button
-                                    className="btn-primary cart-btn"
-                                    onClick={handleAddToCart}
-                                    disabled={listing.stockCount === 0 || listing.status !== 'Available' || addingToCart}
-                                    style={{
-                                        flex: 2,
-                                        opacity: (listing.stockCount === 0 || listing.status !== 'Available') ? 0.5 : 1,
-                                        cursor: (listing.stockCount === 0 || listing.status !== 'Available') ? 'not-allowed' : 'pointer',
-                                        height: '50px'
-                                    }}
-                                >
-                                    {addingToCart ? 'Adding...' : (listing.stockCount === 0 ? 'Out of Stock' : 'Add to Cart')}
-                                </button>
+                        <div className="buyer-actions" style={{ marginTop: '15px', display: 'flex', gap: '15px', alignItems: 'center' }}>
+                            <button
+                                className="btn-primary cart-btn"
+                                onClick={handleAddToCart}
+                                disabled={listing.stockCount === 0 || listing.status !== 'Available' || addingToCart}
+                                style={{
+                                    flex: 2,
+                                    opacity: (listing.stockCount === 0 || listing.status !== 'Available') ? 0.5 : 1,
+                                    cursor: (listing.stockCount === 0 || listing.status !== 'Available') ? 'not-allowed' : 'pointer'
+                                }}
+                            >
+                                {addingToCart ? 'Adding...' : (listing.stockCount === 0 ? 'Out of Stock' : 'Add to Cart')}
+                            </button>
 
-                                <button
-                                    className="btn-secondary contact-btn"
-                                    onClick={handleContactSeller}
-                                    disabled={listing.status !== 'Available'}
-                                    style={{
-                                        flex: 1,
-                                        backgroundColor: 'transparent',
-                                        border: '2px solid #2C3E50',
-                                        color: '#2C3E50',
-                                        padding: '10px 15px',
-                                        borderRadius: '8px',
-                                        fontWeight: '600',
-                                        opacity: listing.status !== 'Available' ? 0.5 : 1,
-                                        cursor: listing.status !== 'Available' ? 'not-allowed' : 'pointer',
-                                        height: '50px'
-                                    }}
-                                >
-                                    Contact
-                                </button>
-                            </div>
+                            <button
+                                className="btn-secondary contact-btn"
+                                onClick={handleContactSeller}
+                                disabled={listing.status !== 'Available'}
+                                style={{
+                                    flex: 1,
+                                    opacity: listing.status !== 'Available' ? 0.5 : 1,
+                                    cursor: listing.status !== 'Available' ? 'not-allowed' : 'pointer'
+                                }}
+                            >
+                                Contact
+                            </button>
                         </div>
                     )}
                 </div>
             </div>
 
             {/* Reveiws Section */}
-            <div className="reviews-section" style={{ marginTop: '40px' }}>
-                <h3 style={{ marginBottom: '20px', fontSize: '1.5rem', color: '#2C3E50', borderBottom: '2px solid #eee', paddingBottom: '10px' }}>
+            <div className="reviews-section" style={{ marginTop: '50px' }}>
+                <h3 className="section-gradient-title" style={{ marginBottom: '20px', fontSize: '1.8rem', borderBottom: '2px solid #edf2f7', paddingBottom: '10px' }}>
                     Customer Reviews
                 </h3>
 

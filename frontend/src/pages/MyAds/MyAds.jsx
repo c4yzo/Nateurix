@@ -157,7 +157,7 @@ const MyAds = () => {
                                             <li key={item._id}>
                                                 <div className="sales-item-meta">
                                                     <span>{item.quantity}x {item.listing.title}</span>
-                                                    <span className="sales-item-price">${(item.price * item.quantity).toFixed(2)}</span>
+                                                    <span className="sales-item-price">₹{(item.price * item.quantity).toFixed(2)}</span>
                                                 </div>
                                                 <div className="status-badge-container" style={{ marginTop: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                                                     <label style={{ fontSize: '0.85rem', fontWeight: 600, color: '#555' }}>Status:</label>

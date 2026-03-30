@@ -107,7 +107,7 @@ const PurchaseHistory = () => {
                                     <span className="order-date">Placed on {new Date(order.createdAt).toLocaleDateString()}</span>
                                 </div>
                                 <div className="order-total">
-                                    Total: <strong>${order.totalPrice.toFixed(2)}</strong>
+                                    Total: <strong>₹{order.totalPrice.toFixed(2)}</strong>
                                 </div>
                             </div>
 
@@ -126,7 +126,7 @@ const PurchaseHistory = () => {
                                             <div className="item-details">
                                                 <h4>{item.listing.title}</h4>
                                                 <p>Qty: {item.quantity}</p>
-                                                <span className="item-price">${(item.price * item.quantity).toFixed(2)}</span>
+                                                <span className="item-price">₹{(item.price * item.quantity).toFixed(2)}</span>
                                                 <div className="item-status" style={{ marginTop: '8px' }}>
                                                     <span className={`badge ${item.deliveryStatus ? item.deliveryStatus.toLowerCase() : 'processing'}`} style={{
                                                         padding: '4px 10px',

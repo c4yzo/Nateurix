@@ -1,5 +1,7 @@
 import User from '../Models/User.js';
+import OTP from '../Models/OTP.js';
 import jwt from 'jsonwebtoken';
+import { sendOTPEmail } from '../utils/mailer.js';
 
 // Generate JWT
 const generateToken = (id) => {
@@ -8,12 +10,61 @@ const generateToken = (id) => {
     });
 };
 
-// @desc    Register a new user
+// @desc    Generate and send 6-digit OTP
+// @route   POST /api/users/send-otp
+// @access  Public
+export const sendOtp = async (req, res) => {
+    try {
+        const { email } = req.body;
+        if (!email) {
+            return res.status(400).json({ message: 'Email is required' });
+        }
+
+        const userExists = await User.findOne({ email });
+        if (userExists) {
+            return res.status(400).json({ message: 'User already exists with this email' });
+        }
+
+        // Generate 6 digit numeric code
+        const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+
+        // Wipe any existing OTPs for hygiene
+        await OTP.deleteMany({ email });
+
+        await OTP.create({
+            email,
+            otp: otpCode
+        });
+
+        // Fire Google SMTP Mailer
+        const mailResult = await sendOTPEmail(email, otpCode);
+
+        if (!mailResult.success) {
+            return res.status(500).json({ message: 'Failed to send OTP verification email.', error: mailResult.error });
+        }
+
+        res.status(200).json({ message: 'Verification code sent successfully.' });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// @desc    Register a new user (Post verification)
 // @route   POST /api/users/register
 // @access  Public
 export const registerUser = async (req, res) => {
     try {
-        const { name, email, password, contact } = req.body;
+        const { name, email, password, contact, otp } = req.body;
+
+        if (!otp) {
+            return res.status(400).json({ message: 'Verification Code (OTP) is required to finalize registration' });
+        }
+
+        const otpRecord = await OTP.findOne({ email, otp });
+
+        if (!otpRecord) {
+            return res.status(400).json({ message: 'Invalid or Expired Verification Code' });
+        }
 
         const userExists = await User.findOne({ email });
 
@@ -29,6 +80,9 @@ export const registerUser = async (req, res) => {
         });
 
         if (user) {
+            // Success, clean up the TTL index just in case manually
+            await OTP.deleteMany({ email });
+
             res.status(201).json({
                 _id: user._id,
                 name: user.name,
@@ -37,7 +91,7 @@ export const registerUser = async (req, res) => {
                 token: generateToken(user._id),
             });
         } else {
-            res.status(400).json({ message: 'Invalid user data' });
+            res.status(400).json({ message: 'Invalid user data format' });
         }
     } catch (error) {
         res.status(500).json({ message: error.message });

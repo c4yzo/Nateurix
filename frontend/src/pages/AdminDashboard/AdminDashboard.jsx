@@ -9,6 +9,8 @@ const AdminDashboard = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [activeTab, setActiveTab] = useState('sales'); // 'sales' or 'rentals'
+    const [activeSalesTab, setActiveSalesTab] = useState('pending'); // 'pending', 'shipped', 'delivered'
+    const [activeRentalsTab, setActiveRentalsTab] = useState('outbound'); // 'outbound', 'active', 'returning', 'completed'
     const navigate = useNavigate();
 
     const adminInfoString = localStorage.getItem('adminInfo');
@@ -145,10 +147,11 @@ const AdminDashboard = () => {
         </div>
     );
 
-    // --- RENTALS KANBAN LOGIC ---
+    // --- RENTALS LOGIC ---
     const outboundRentals = rentals.filter(r => ['Pending', 'Delivering to Buyer'].includes(r.rentalStatus));
     const activeRentals = rentals.filter(r => r.rentalStatus === 'Active');
-    const returnRentals = rentals.filter(r => ['Collecting from Buyer', 'Returning to Seller', 'Completed'].includes(r.rentalStatus));
+    const returnRentals = rentals.filter(r => ['Collecting from Buyer', 'Returning to Seller'].includes(r.rentalStatus));
+    const completedRentals = rentals.filter(r => r.rentalStatus === 'Completed');
 
     const renderRentalCard = (rental) => (
         <div key={rental._id} className="kanban-card rental-card">
@@ -220,59 +223,60 @@ const AdminDashboard = () => {
             </div>
 
             {activeTab === 'sales' && (
-                <div className="kanban-board">
-                    <div className="kanban-column">
-                        <div className="column-header processing">
-                            <h3>Pending Pickup ({pendingSales.length})</h3>
-                        </div>
-                        <div className="column-content">
-                            {pendingSales.map(renderSaleCard)}
-                        </div>
+                <div className="tab-content-area">
+                    <div className="sub-tab-controls">
+                        <button className={`sub-tab-btn pending ${activeSalesTab === 'pending' ? 'active' : ''}`} onClick={() => setActiveSalesTab('pending')}>
+                            Pending Pickup ({pendingSales.length})
+                        </button>
+                        <button className={`sub-tab-btn shipped ${activeSalesTab === 'shipped' ? 'active' : ''}`} onClick={() => setActiveSalesTab('shipped')}>
+                            In Transit ({shippedSales.length})
+                        </button>
+                        <button className={`sub-tab-btn delivered ${activeSalesTab === 'delivered' ? 'active' : ''}`} onClick={() => setActiveSalesTab('delivered')}>
+                            Delivered ({deliveredSales.length})
+                        </button>
                     </div>
-                    <div className="kanban-column">
-                        <div className="column-header shipped">
-                            <h3>In Transit ({shippedSales.length})</h3>
-                        </div>
-                        <div className="column-content">
-                            {shippedSales.map(renderSaleCard)}
-                        </div>
-                    </div>
-                    <div className="kanban-column">
-                        <div className="column-header delivered">
-                            <h3>Delivered ({deliveredSales.length})</h3>
-                        </div>
-                        <div className="column-content">
-                            {deliveredSales.map(renderSaleCard)}
-                        </div>
+
+                    <div className="cards-grid">
+                        {activeSalesTab === 'pending' && pendingSales.map(renderSaleCard)}
+                        {activeSalesTab === 'shipped' && shippedSales.map(renderSaleCard)}
+                        {activeSalesTab === 'delivered' && deliveredSales.map(renderSaleCard)}
+
+                        {/* Empty States */}
+                        {activeSalesTab === 'pending' && pendingSales.length === 0 && <div className="empty-state">No items awaiting pickup.</div>}
+                        {activeSalesTab === 'shipped' && shippedSales.length === 0 && <div className="empty-state">No items currently in transit.</div>}
+                        {activeSalesTab === 'delivered' && deliveredSales.length === 0 && <div className="empty-state">No items have been delivered yet.</div>}
                     </div>
                 </div>
             )}
 
             {activeTab === 'rentals' && (
-                <div className="kanban-board">
-                    <div className="kanban-column">
-                        <div className="column-header processing">
-                            <h3>Outbound to Buyer ({outboundRentals.length})</h3>
-                        </div>
-                        <div className="column-content">
-                            {outboundRentals.map(renderRentalCard)}
-                        </div>
+                <div className="tab-content-area">
+                    <div className="sub-tab-controls">
+                        <button className={`sub-tab-btn outbound ${activeRentalsTab === 'outbound' ? 'active' : ''}`} onClick={() => setActiveRentalsTab('outbound')}>
+                            Outbound to Buyer ({outboundRentals.length})
+                        </button>
+                        <button className={`sub-tab-btn active-status ${activeRentalsTab === 'active' ? 'active' : ''}`} onClick={() => setActiveRentalsTab('active')}>
+                            Active in Use ({activeRentals.length})
+                        </button>
+                        <button className={`sub-tab-btn returning ${activeRentalsTab === 'returning' ? 'active' : ''}`} onClick={() => setActiveRentalsTab('returning')}>
+                            Returning to Seller ({returnRentals.length})
+                        </button>
+                        <button className={`sub-tab-btn completed ${activeRentalsTab === 'completed' ? 'active' : ''}`} onClick={() => setActiveRentalsTab('completed')}>
+                            Completed Rentals ({completedRentals.length})
+                        </button>
                     </div>
-                    <div className="kanban-column">
-                        <div className="column-header active-rental">
-                            <h3>Active in Use ({activeRentals.length})</h3>
-                        </div>
-                        <div className="column-content">
-                            {activeRentals.map(renderRentalCard)}
-                        </div>
-                    </div>
-                    <div className="kanban-column">
-                        <div className="column-header returning">
-                            <h3>Returning to Seller ({returnRentals.length})</h3>
-                        </div>
-                        <div className="column-content">
-                            {returnRentals.map(renderRentalCard)}
-                        </div>
+
+                    <div className="cards-grid">
+                        {activeRentalsTab === 'outbound' && outboundRentals.map(renderRentalCard)}
+                        {activeRentalsTab === 'active' && activeRentals.map(renderRentalCard)}
+                        {activeRentalsTab === 'returning' && returnRentals.map(renderRentalCard)}
+                        {activeRentalsTab === 'completed' && completedRentals.map(renderRentalCard)}
+
+                        {/* Empty States */}
+                        {activeRentalsTab === 'outbound' && outboundRentals.length === 0 && <div className="empty-state">No rentals pending outbound delivery.</div>}
+                        {activeRentalsTab === 'active' && activeRentals.length === 0 && <div className="empty-state">No rentals currently active in use.</div>}
+                        {activeRentalsTab === 'returning' && returnRentals.length === 0 && <div className="empty-state">No rentals currently returning to seller.</div>}
+                        {activeRentalsTab === 'completed' && completedRentals.length === 0 && <div className="empty-state">No completed rental histories available.</div>}
                     </div>
                 </div>
             )}

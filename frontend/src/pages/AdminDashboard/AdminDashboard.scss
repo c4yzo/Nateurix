@@ -58,68 +58,103 @@
         }
     }
 
-    .kanban-board {
+    .tab-content-area {
+        background: rgba(255, 255, 255, 0.4);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.6);
+        border-radius: 20px;
+        padding: $spacing-xl;
+    }
+
+    .sub-tab-controls {
+        display: flex;
+        gap: $spacing-md;
+        margin-bottom: $spacing-xl;
+        flex-wrap: wrap;
+
+        .sub-tab-btn {
+            background: white;
+            border: 1px solid #e2e8f0;
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #4a5568;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+
+            &:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            }
+
+            // Highlighting based on their specific contextual color scale
+            &.pending.active {
+                background: linear-gradient(135deg, #f6d365, #fda085);
+                color: white;
+                border-color: transparent;
+                box-shadow: 0 6px 15px rgba(253, 160, 133, 0.4);
+            }
+
+            &.shipped.active {
+                background: linear-gradient(135deg, #84fab0, #8fd3f4);
+                color: #1a202c;
+                border-color: transparent;
+                box-shadow: 0 6px 15px rgba(132, 250, 176, 0.4);
+            }
+
+            &.delivered.active {
+                background: linear-gradient(135deg, #4facfe, #00f2fe);
+                color: white;
+                border-color: transparent;
+                box-shadow: 0 6px 15px rgba(79, 172, 254, 0.4);
+            }
+
+            &.outbound.active {
+                background: linear-gradient(135deg, #f6d365, #fda085);
+                color: white;
+                border-color: transparent;
+                box-shadow: 0 6px 15px rgba(253, 160, 133, 0.4);
+            }
+
+            &.active-status.active {
+                background: linear-gradient(135deg, #d4fc79, #96e6a1);
+                color: #1a202c;
+                border-color: transparent;
+                box-shadow: 0 6px 15px rgba(150, 230, 161, 0.4);
+            }
+
+            &.returning.active {
+                background: linear-gradient(135deg, #a18cd1, #fbc2eb);
+                color: white;
+                border-color: transparent;
+                box-shadow: 0 6px 15px rgba(161, 140, 209, 0.4);
+            }
+
+            &.completed.active {
+                background: linear-gradient(135deg, #84fab0, #8fd3f4);
+                color: #1a202c;
+                border-color: transparent;
+                box-shadow: 0 6px 15px rgba(132, 250, 176, 0.4);
+            }
+        }
+    }
+
+    .cards-grid {
         display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: $spacing-xl;
-        padding-top: $spacing-md;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: $spacing-lg;
 
-        @media (max-width: 1024px) {
-            grid-template-columns: repeat(2, 1fr);
-        }
-
-        @media (max-width: 768px) {
-            grid-template-columns: 1fr;
-        }
-
-        .kanban-column {
-            background: rgba(255, 255, 255, 0.3);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.6);
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-
-            .column-header {
-                padding: $spacing-md $spacing-lg;
-                border-bottom: 1px solid rgba(255, 255, 255, 0.5);
-
-                h3 {
-                    margin: 0;
-                    font-size: 1.1rem;
-                    color: white;
-                    font-weight: 600;
-                }
-
-                &.processing {
-                    background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
-                }
-
-                &.shipped {
-                    background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
-                }
-
-                &.delivered {
-                    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-                }
-
-                &.active-rental {
-                    background: linear-gradient(135deg, #d4fc79 0%, #96e6a1 100%);
-                }
-
-                &.returning {
-                    background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%);
-                }
-            }
-
-            .column-content {
-                padding: $spacing-md;
-                display: flex;
-                flex-direction: column;
-                gap: $spacing-md;
-                min-height: 200px;
-            }
+        .empty-state {
+            grid-column: 1 / -1;
+            padding: 3rem;
+            text-align: center;
+            color: #7f8c8d;
+            font-size: 1.1rem;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 12px;
+            border: 1px dashed rgba(255, 255, 255, 0.8);
         }
 
         .kanban-card {
