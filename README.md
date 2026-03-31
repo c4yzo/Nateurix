@@ -1,4 +1,4 @@
-# Nateurix 🌱 (v1.2.0)
+# Nateurix 🌱 (v1.2.1)
 
 **Smart Farming Assistance and Marketplace Management System**
 

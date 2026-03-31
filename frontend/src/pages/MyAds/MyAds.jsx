@@ -17,6 +17,8 @@ const MyAds = () => {
     const [sales, setSales] = useState([]);
     const [loadingSales, setLoadingSales] = useState(false);
     const [salesError, setSalesError] = useState('');
+    const [profitMetrics, setProfitMetrics] = useState({ totalProfit: 0, salesProfit: 0, rentalsProfit: 0 });
+    const [profitFetched, setProfitFetched] = useState(false);
 
     const userInfoString = localStorage.getItem('userInfo');
     const userInfo = useMemo(() => {
@@ -54,12 +56,24 @@ const MyAds = () => {
             }
         };
 
+        const fetchProfit = async () => {
+            try {
+                const config = { headers: { Authorization: `Bearer ${userInfo.token}` } };
+                const { data } = await axios.get('/api/orders/profit', config);
+                setProfitMetrics(data);
+                setProfitFetched(true);
+            } catch (err) {
+                console.error('Error fetching profit:', err);
+            }
+        };
+
         if (activeTab === 'listings' && listings.length === 0) {
             fetchMyListings();
-        } else if (activeTab === 'sales' && sales.length === 0) {
-            fetchMySales();
+        } else if (activeTab === 'sales') {
+            if (sales.length === 0) fetchMySales();
+            if (!profitFetched) fetchProfit();
         }
-    }, [navigate, userInfo, activeTab, listings.length, sales.length]);
+    }, [navigate, userInfo, activeTab, listings.length, sales.length, profitFetched]);
 
     const handleStatusUpdate = async (id, newStatus) => {
         try {
@@ -115,64 +129,77 @@ const MyAds = () => {
     };
 
     const renderSalesTab = () => {
-        if (loadingSales) return <div className="loader">Loading your sales...</div>;
+        if (loadingSales) return <div className="loader">Loading your Sales Dashboard...</div>;
         if (salesError) return <div className="error-message">{salesError}</div>;
-        if (sales.length === 0) return (
-            <div className="empty-state">
-                <h3>No sales yet.</h3>
-                <p>When someone buys your items, their orders will appear here.</p>
-            </div>
-        );
 
         return (
-            <div className="sales-list">
-                {sales.map(order => {
-                    // Filter just the items this user sold within the order
-                    const myItems = order.orderItems.filter(item =>
-                        item.listing && item.listing.seller === userInfo._id
-                    );
-
-                    return (
-                        <div key={order._id} className="sales-card glass-panel">
-                            <div className="sales-header">
-                                <div className="order-info">
-                                    <h4>Order #{order._id.substring(order._id.length - 6).toUpperCase()}</h4>
-                                    <span className="order-date">{new Date(order.createdAt).toLocaleDateString()}</span>
-                                </div>
-                            </div>
-
-                            <div className="sales-body">
-                                <div className="buyer-info">
-                                    <h5>Ship To:</h5>
-                                    <p><strong>{order.user.name}</strong> ({order.user.email})</p>
-                                    <p>{order.shippingAddress.address}</p>
-                                    <p>{order.shippingAddress.city}, {order.shippingAddress.postalCode}</p>
-                                    <p>{order.shippingAddress.country}</p>
-                                </div>
-
-                                <div className="items-sold">
-                                    <h5>Items Sold:</h5>
-                                    <ul>
-                                        {myItems.map(item => (
-                                            <li key={item._id}>
-                                                <div className="sales-item-meta">
-                                                    <span>{item.quantity}x {item.listing.title}</span>
-                                                    <span className="sales-item-price">₹{(item.price * item.quantity).toFixed(2)}</span>
-                                                </div>
-                                                <div className="status-badge-container" style={{ marginTop: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                                    <label style={{ fontSize: '0.85rem', fontWeight: 600, color: '#555' }}>Status:</label>
-                                                    <span className={`status-badge ${item.deliveryStatus?.toLowerCase() || 'processing'}`} style={{ padding: '4px 8px', borderRadius: '4px', backgroundColor: '#e2f0d9', color: '#2e7d32', border: '1px solid #c8e6c9', fontSize: '0.85rem', fontWeight: 600 }}>
-                                                        {item.deliveryStatus || 'Processing'}
-                                                    </span>
-                                                </div>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
-                            </div>
+            <div className="sales-dashboard-wrapper">
+                {/* 1. Revenue Analytics Widget */}
+                <div className="profit-analytics-widget">
+                    <div className="profit-icon">💎</div>
+                    <div className="profit-details">
+                        <h4>Total Lifetime Revenue</h4>
+                        <h2 className="gradient-text">₹{profitMetrics.totalProfit.toFixed(2)}</h2>
+                        <div className="profit-breakdown">
+                            <span className="sales-pill">📦 Sales: ₹{profitMetrics.salesProfit.toFixed(2)}</span>
+                            <span className="rentals-pill">🔄 Rentals: ₹{profitMetrics.rentalsProfit.toFixed(2)}</span>
                         </div>
-                    );
-                })}
+                    </div>
+                </div>
+
+                {/* 2. Responsive Sales Grid */}
+                {sales.length === 0 ? (
+                    <div className="empty-state">
+                        <h3>No sales yet.</h3>
+                        <p>When someone buys your items, their orders will populate right here.</p>
+                    </div>
+                ) : (
+                    <div className="sales-grid">
+                        {sales.map(order => {
+                            const myItems = order.orderItems.filter(item =>
+                                item.listing && item.listing.seller === userInfo._id
+                            );
+
+                            return (
+                                <div key={order._id} className="sales-card stylish-card">
+                                    <div className="sales-header">
+                                        <div className="order-info">
+                                            <h4>Order #{order._id.substring(order._id.length - 6).toUpperCase()}</h4>
+                                            <span className="order-date">{new Date(order.createdAt).toLocaleDateString()}</span>
+                                        </div>
+                                    </div>
+
+                                    <div className="sales-body">
+                                        <div className="buyer-info">
+                                            <h5>Ship To:</h5>
+                                            <p className="buyer-name"><strong>{order.user.name}</strong> ({order.user.email})</p>
+                                            <p className="address-text">{order.shippingAddress.address}, {order.shippingAddress.city}, {order.shippingAddress.postalCode}</p>
+                                        </div>
+
+                                        <div className="items-sold">
+                                            <h5>Items Ordered:</h5>
+                                            <div className="sub-items-grid">
+                                                {myItems.map(item => (
+                                                    <div key={item._id} className="sold-item-card">
+                                                        <div className="sold-item-meta">
+                                                            <span><strong>{item.quantity}x</strong> {item.listing.title}</span>
+                                                            <span className="sales-item-price">₹{(item.price * item.quantity).toFixed(2)}</span>
+                                                        </div>
+                                                        <div className="status-badge-container">
+                                                            <span className={`status-badge ${item.deliveryStatus?.replace(/\s+/g, '-').toLowerCase() || 'processing'}`}>
+                                                                {item.deliveryStatus || 'Processing'}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+                )}
             </div>
         );
     };

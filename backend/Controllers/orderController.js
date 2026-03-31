@@ -41,6 +41,11 @@ export const createCheckoutInfo = async (req, res) => {
             if (transactionType.toLowerCase() === 'rent') transactionType = 'Rent';
             if (transactionType.toLowerCase() === 'sale') transactionType = 'Sale';
 
+            // Nateurix Platform Rules: Tools are inherently Rentals
+            if (item.listing.category === 'Tool') {
+                transactionType = 'Rent';
+            }
+
             const daysRented = item.daysRented || 1;
 
             if (transactionType === 'Rent') {
@@ -207,16 +212,76 @@ export const getSellerOrders = async (req, res) => {
             .populate('user', 'name email address')
             .sort({ createdAt: -1 });
 
-        // Filter orders where the current user is the seller of at least one item
+        // Filter standard physical orders
         const sellerOrders = orders.filter(order =>
             order.orderItems.some(item =>
                 item.listing && item.listing.seller && item.listing.seller.toString() === req.user._id.toString()
             )
         );
 
-        res.json(sellerOrders);
+        // Fetch tool rentals where the user is the Seller
+        const rentals = await RentalOrder.find({ seller: req.user._id })
+            .populate('rentedItems.listing', 'title imageUrl price')
+            .populate('buyer', 'name email address')
+            .sort({ createdAt: -1 })
+            .lean();
+
+        // Soft-map Rental object schema to exactly match standard Order schema so frontend doesn't crash
+        const mappedRentals = rentals.map(rental => ({
+            _id: rental._id,
+            createdAt: rental.createdAt,
+            totalPrice: rental.totalPaid,
+            isRental: true,
+            user: rental.buyer,  // Maps 'buyer' directly to 'user' for frontend
+            shippingAddress: rental.shippingAddress,
+            orderItems: rental.rentedItems.map(item => ({
+                _id: item._id,
+                listing: { ...item.listing, seller: req.user._id }, // Ensures UI filter passes
+                quantity: item.quantity,
+                price: item.pricePerDay * item.daysRented,
+                deliveryStatus: rental.rentalStatus, // Pass rental constraint directly down
+            }))
+        }));
+
+        // Combine and sort chronologically
+        const combined = [...sellerOrders, ...mappedRentals].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+        res.json(combined);
     } catch (error) {
         console.error('Error fetching sales:', error);
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// @desc    Get total profit for a seller (sales + rentals)
+// @route   GET /api/orders/profit
+// @access  Private
+export const getSellerProfit = async (req, res) => {
+    try {
+        const userId = req.user._id;
+
+        // 1. Calculate Standard Sales Profit
+        const orders = await Order.find({ paymentStatus: 'Completed' })
+            .populate('orderItems.listing');
+
+        let salesProfit = 0;
+        orders.forEach(order => {
+            order.orderItems.forEach(item => {
+                if (item.listing && item.listing.seller && item.listing.seller.toString() === userId.toString()) {
+                    salesProfit += (item.price * item.quantity);
+                }
+            });
+        });
+
+        // 2. Calculate Tool Rentals Profit
+        const rentals = await RentalOrder.find({ seller: userId, paymentTransactionId: { $ne: null } });
+        const rentalsProfit = rentals.reduce((acc, rental) => acc + rental.totalPaid, 0);
+
+        const totalProfit = salesProfit + rentalsProfit;
+
+        res.json({ totalProfit, salesProfit, rentalsProfit });
+    } catch (error) {
+        console.error('Error calculating seller profit:', error);
         res.status(500).json({ message: error.message });
     }
 };

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './AdminDashboard.scss';
@@ -14,7 +14,9 @@ const AdminDashboard = () => {
     const navigate = useNavigate();
 
     const adminInfoString = localStorage.getItem('adminInfo');
-    const adminInfo = adminInfoString ? JSON.parse(adminInfoString) : null;
+    const adminInfo = useMemo(() => {
+        return adminInfoString ? JSON.parse(adminInfoString) : null;
+    }, [adminInfoString]);
 
     useEffect(() => {
         if (!adminInfo) {
@@ -111,38 +113,47 @@ const AdminDashboard = () => {
     const deliveredSales = allSaleItems.filter(x => x.item.deliveryStatus === 'Delivered');
 
     const renderSaleCard = ({ order, item }) => (
-        <div key={item._id} className="kanban-card">
-            <div className="card-header">
+        <div key={item._id} className="admin-row-card">
+            {/* Sector 1: Meta Data & Actions */}
+            <div className="card-section meta-section">
                 <span className="order-id">#{order._id.substring(order._id.length - 6).toUpperCase()}</span>
                 {item.pickupAddress === 'LEGACY_ITEM_NO_ADDRESS' && <span className="warning-badge">⚠️ Legacy</span>}
-            </div>
-            <div className="card-body">
-                <div className="item-info">
-                    {item.listing?.imageUrl ? <img src={item.listing.imageUrl} alt="item" /> : <div className="no-img">Img</div>}
-                    <div>
-                        <strong>{item.listing?.title || 'Deleted Item'}</strong>
-                        <p>Qty: {item.quantity}</p>
-                    </div>
+                <div className="status-updater">
+                    <select
+                        className={`status-select ${item.deliveryStatus?.replace(/\s+/g, '-').toLowerCase() || 'processing'}`}
+                        value={item.deliveryStatus || 'Processing'}
+                        onChange={(e) => handleDeliveryUpdate(order._id, item._id, e.target.value)}
+                        disabled={item.deliveryStatus === 'Delivered'}
+                    >
+                        {(!item.deliveryStatus || item.deliveryStatus === 'Processing') && <option value="Processing">Processing</option>}
+                        {(!item.deliveryStatus || item.deliveryStatus === 'Processing' || item.deliveryStatus === 'Shipped') && <option value="Shipped">Shipped</option>}
+                        <option value="Delivered">Delivered</option>
+                    </select>
                 </div>
-                <div className="logistics-info">
-                    <p><strong>From:</strong> {item.listing?.seller?.name || 'Unknown'}</p>
+            </div>
+
+            {/* Sector 2: Product Details */}
+            <div className="card-section product-section">
+                {item.listing?.imageUrl ? <img src={item.listing.imageUrl} alt="item" /> : <div className="no-img">Img</div>}
+                <div className="product-text">
+                    <strong>{item.listing?.title || 'Deleted Item'}</strong>
+                    <p>Qty: <span className="highlighted">{item.quantity}</span></p>
+                </div>
+            </div>
+
+            {/* Sector 3: Logistics Pipeline */}
+            <div className="card-section logistics-section">
+                <div className="logistics-party">
+                    <span className="party-tag">From Seller</span>
+                    <strong>{item.listing?.seller?.name || 'Unknown'}</strong>
                     <p className="address-text">{item.pickupAddress === 'LEGACY_ITEM_NO_ADDRESS' ? 'Contact Seller' : item.pickupAddress}</p>
-                    <p className="arrow">⬇️</p>
-                    <p><strong>To:</strong> {order.user?.name || 'Unknown'}</p>
+                </div>
+                <div className="flow-arrow">➡️</div>
+                <div className="logistics-party">
+                    <span className="party-tag">To Buyer</span>
+                    <strong>{order.user?.name || 'Unknown'}</strong>
                     <p className="address-text">{order.shippingAddress.address}, {order.shippingAddress.city}</p>
                 </div>
-            </div>
-            <div className="card-actions">
-                <select
-                    className={`status-select ${item.deliveryStatus?.toLowerCase() || 'processing'}`}
-                    value={item.deliveryStatus || 'Processing'}
-                    onChange={(e) => handleDeliveryUpdate(order._id, item._id, e.target.value)}
-                    disabled={item.deliveryStatus === 'Delivered'}
-                >
-                    {(!item.deliveryStatus || item.deliveryStatus === 'Processing') && <option value="Processing">Processing</option>}
-                    {(!item.deliveryStatus || item.deliveryStatus === 'Processing' || item.deliveryStatus === 'Shipped') && <option value="Shipped">Shipped</option>}
-                    <option value="Delivered">Delivered</option>
-                </select>
             </div>
         </div>
     );
@@ -154,49 +165,56 @@ const AdminDashboard = () => {
     const completedRentals = rentals.filter(r => r.rentalStatus === 'Completed');
 
     const renderRentalCard = (rental) => (
-        <div key={rental._id} className="kanban-card rental-card">
-            <div className="card-header">
+        <div key={rental._id} className="admin-row-card rental-card">
+            {/* Sector 1: Meta Data & Actions */}
+            <div className="card-section meta-section">
                 <span className="order-id">#{rental._id.substring(rental._id.length - 6).toUpperCase()}</span>
-                <span className="rental-status-badge">{rental.rentalStatus}</span>
-            </div>
-            <div className="card-body">
-                <div className="rented-items-list">
-                    {rental.rentedItems.map(item => (
-                        <div key={item._id} className="item-info">
-                            {item.listing?.imageUrl ? <img src={item.listing.imageUrl} alt="item" /> : <div className="no-img">Img</div>}
-                            <div>
-                                <strong>{item.listing?.title || 'Deleted Tool'}</strong>
-                                <p>Qty: {item.quantity} | <strong style={{ color: '#e74c3c' }}>{item.daysRented} Days</strong></p>
-                            </div>
-                        </div>
-                    ))}
+                <div className="status-updater">
+                    <select
+                        className={`status-select rental-select`}
+                        value={rental.rentalStatus}
+                        onChange={(e) => handleRentalStatusUpdate(rental._id, e.target.value)}
+                        disabled={rental.rentalStatus === 'Completed'}
+                    >
+                        {['Pending', 'Delivering to Buyer', 'Active', 'Collecting from Buyer', 'Returning to Seller', 'Completed'].map((status, index, arr) => (
+                            <option
+                                key={status}
+                                value={status}
+                                disabled={index < arr.indexOf(rental.rentalStatus)}
+                            >
+                                {status}
+                            </option>
+                        ))}
+                    </select>
                 </div>
+            </div>
 
-                <div className="logistics-info">
-                    <p><strong>Seller:</strong> {rental.seller?.name}</p>
+            {/* Sector 2: Product Details (Array Maps) */}
+            <div className="card-section product-section rentals-product-list">
+                {rental.rentedItems.map(item => (
+                    <div key={item._id} className="rental-item-row">
+                        {item.listing?.imageUrl ? <img src={item.listing.imageUrl} alt="item" /> : <div className="no-img">Img</div>}
+                        <div className="product-text">
+                            <strong>{item.listing?.title || 'Deleted Tool'}</strong>
+                            <p>Qty: {item.quantity} | <strong style={{ color: '#e74c3c' }}>{item.daysRented} Days</strong></p>
+                        </div>
+                    </div>
+                ))}
+            </div>
+
+            {/* Sector 3: Logistics Pipeline */}
+            <div className="card-section logistics-section">
+                <div className="logistics-party">
+                    <span className="party-tag">From Seller</span>
+                    <strong>{rental.seller?.name}</strong>
                     <p className="address-text">{rental.rentedItems[0]?.pickupAddress}</p>
-                    <p className="arrow">↕️</p>
-                    <p><strong>Buyer:</strong> {rental.buyer?.name}</p>
+                </div>
+                <div className="flow-arrow">↕️</div>
+                <div className="logistics-party">
+                    <span className="party-tag">To Buyer</span>
+                    <strong>{rental.buyer?.name}</strong>
                     <p className="address-text">{rental.shippingAddress.address}, {rental.shippingAddress.city}</p>
                 </div>
-            </div>
-            <div className="card-actions">
-                <select
-                    className={`status-select rental-select`}
-                    value={rental.rentalStatus}
-                    onChange={(e) => handleRentalStatusUpdate(rental._id, e.target.value)}
-                    disabled={rental.rentalStatus === 'Completed'}
-                >
-                    {['Pending', 'Delivering to Buyer', 'Active', 'Collecting from Buyer', 'Returning to Seller', 'Completed'].map((status, index, arr) => (
-                        <option
-                            key={status}
-                            value={status}
-                            disabled={index < arr.indexOf(rental.rentalStatus)}
-                        >
-                            {status}
-                        </option>
-                    ))}
-                </select>
             </div>
         </div>
     );
@@ -236,7 +254,7 @@ const AdminDashboard = () => {
                         </button>
                     </div>
 
-                    <div className="cards-grid">
+                    <div className="cards-list">
                         {activeSalesTab === 'pending' && pendingSales.map(renderSaleCard)}
                         {activeSalesTab === 'shipped' && shippedSales.map(renderSaleCard)}
                         {activeSalesTab === 'delivered' && deliveredSales.map(renderSaleCard)}
@@ -266,7 +284,7 @@ const AdminDashboard = () => {
                         </button>
                     </div>
 
-                    <div className="cards-grid">
+                    <div className="cards-list">
                         {activeRentalsTab === 'outbound' && outboundRentals.map(renderRentalCard)}
                         {activeRentalsTab === 'active' && activeRentals.map(renderRentalCard)}
                         {activeRentalsTab === 'returning' && returnRentals.map(renderRentalCard)}
